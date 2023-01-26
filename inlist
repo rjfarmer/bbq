@@ -12,14 +12,14 @@
     stptry = 0
 
 
-    ! What mode to run
+    ! What mode to run, must pick one
     use_input_file = .false. ! Simply read from file and output burn data
     use_random_sampling =.false. ! Randomly sample inputs
     use_profile=.false. ! Read a profile of (T,Rho) and burn material
     just_write_isos=.false.
 
 
-    write_iso_list = .true.
+    write_iso_list = .false.
     iso_list_filename = 'isos.txt'
 
 /
@@ -56,6 +56,14 @@
 
 
 &profile ! For use_profile
+
+    input_filename = ''
+    input_composition_filename = ''
+    output_filename = ''
+
+    reflective_boundaries=.true.
+    num_loops = 1
+
 
 /
 
