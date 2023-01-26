@@ -7,18 +7,8 @@
 
 # Step 0) Check if you have set the correct environment variables
 ifndef MESA_DIR
-ifndef MESA_DIR_INTENTIONALLY_EMPTY
 $(error MESA_DIR enviroment variable is not set)
 endif
-endif
-
-
-ifndef MESASDK_ROOT
-ifndef MESA_DIR_INTENTIONALLY_EMPTY
-$(error MESASDK_ROOT enviroment variable is not set)
-endif
-endif
-
 
 include $(MESA_DIR)/utils/makefile_header
 
