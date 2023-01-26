@@ -16,15 +16,17 @@ module bbq_lib
    implicit none
 
 
-   character(len=strlen) :: net_name='',screening=''
+   character(len=strlen) :: net_name='',screening='',iso_list_filename=''
    integer ::  max_steps
    real(dp) :: weak_rate_factor, eps,odescal,stptry
    character(len=strlen) :: inlist_fname = 'inlist'
    logical :: use_input_file=.false.,use_random_sampling=.false.,use_profile=.false.
+   logical :: just_write_isos,write_iso_list
 
    namelist /bbq/ net_name, screening_mode, weak_rate_factor, &
                   eps, odescal, stptry, max_steps, &
-                  use_input_file, use_random_sampling, use_profile
+                  use_input_file, use_random_sampling, use_profile,&
+                  iso_list_filename, just_write_isos, write_iso_list
 
 
 
@@ -385,6 +387,19 @@ module bbq_lib
       end subroutine burn_finish_substep
          
    end subroutine do_burn
+
+
+   subroutine write_isos(filename)
+      integer :: fisos,j
+      character(len=*),intent(in) :: filename
+
+      open(newunit=fisos,file=filename,status='replace',action='write')
+      do j=1,species
+         write(fisos,'(A)') chem_isos% name(g% chem_id(j))
+      end do
+      close(fisos)
+
+   end subroutine write_isos
 
 
 

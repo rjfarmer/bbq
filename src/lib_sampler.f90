@@ -8,18 +8,16 @@ module sampler
    real(dp) :: log_xa_min = -30d0, log_xa_max = 0d0
    real(dp) :: neut_prot_limit_frac = 0.05
    integer  :: flush_freq = 50
-   character(len=strlen) :: input_filename='',output_starting_filename='',output_ending_filename='',&
-                            iso_list_filename = ''
+   character(len=strlen) :: input_filename='',output_starting_filename='',output_ending_filename=''
 
-   logical :: random_sampling = .false., write_iso_list = .true.
+   logical :: random_sampling = .false.
    integer :: num_samples=-1
 
    namelist /sampling/ log_time_min, log_time_max, log_temp_min, log_temp_max, &
                        log_rho_min,  log_rho_max, log_xa_min, log_xa_max, &
                        neut_prot_limit_frac, flush_freq, &
                        input_filename, output_starting_filename, output_ending_filename,&
-                       random_sampling, num_samples, &
-                       iso_list_filename
+                       random_sampling, num_samples
 
 
    real(dp),allocatable :: xin(:)
@@ -150,9 +148,7 @@ module sampler
 
 
       if(write_iso_list) then
-         open(newunit=fisos,file=iso_list_filename,status='replace',action='write')
-         write(fisos,'(A)') chem_isos% name(g% chem_id(j))
-         close(fisos)
+         call write_isos(iso_list_filename)
       end if
 
       ! Read existing data file
@@ -180,11 +176,11 @@ module sampler
 
 
       if(ierr==0) then
-         write(fin,'(2(1pe26.16))', ROUND='COMPATIBLE',ADVANCE='no') log_time, logT, logRho
-         write(fout,'(22(1pe26.16,1X))', ROUND='COMPATIBLE',ADVANCE='no') avg_eps_nuc*10**log_time, eps_neu_total
+         write(fin,'(1pe26.16,1X)', ROUND='COMPATIBLE',ADVANCE='no') log_time, logT, logRho
+         write(fout,'(1pe26.16,1X)', ROUND='COMPATIBLE',ADVANCE='no') avg_eps_nuc*10**log_time, eps_neu_total
          do j=1,species
-            write(fin,'(2(1pe26.16))', ROUND='COMPATIBLE',ADVANCE='no') xin(j)
-            write(fout,'(22(1pe26.16,1X))', ROUND='COMPATIBLE',ADVANCE='no') xout(j)
+            write(fin,'(1pe26.16)', ROUND='COMPATIBLE',ADVANCE='no') xin(j)
+            write(fout,'(1pe26.16,1X)', ROUND='COMPATIBLE',ADVANCE='no') xout(j)
          end do
          write(fin,*)
          write(fout,*)

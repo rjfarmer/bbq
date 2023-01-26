@@ -7,6 +7,12 @@ program main
 
     call net_setup()
 
+
+    if(just_write_isos) then
+        call write_isos(iso_list_filename)
+        return
+    end if
+
     if(use_input_file) then
         call run_sampler_from_file(inlist_fname)
     else if(use_random_sampling) then
