@@ -1,0 +1,21 @@
+program main
+    use utils_lib
+    use bbq_lib
+    use sampler
+    use profile
+
+
+    call net_setup()
+
+    if(use_input_file) then
+        call run_sampler_from_file(inlist_fname)
+    else if(use_random_sampling) then
+        call run_sampler_random(inlist_fname)
+    else if (use_profile) then
+        call run_profile(inlist_fname)
+    else
+        write(*,*) "Must select one mode to run in"
+        call mesa_error(__FILE__,__LINE__)
+    end if
+
+end program main

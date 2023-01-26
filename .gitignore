@@ -1,0 +1,6 @@
+bbq
+*.mod
+*.o
+*.smod
+.depend
+.vscode

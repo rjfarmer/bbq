@@ -1,0 +1,98 @@
+# This is the makefile for bbq based on MESA's test/net makefil
+
+#################################################################
+#
+# PREAMBLE
+
+
+# Step 0) Check if you have set the correct environment variables
+ifndef MESA_DIR
+ifndef MESA_DIR_INTENTIONALLY_EMPTY
+$(error MESA_DIR enviroment variable is not set)
+endif
+endif
+
+
+ifndef MESASDK_ROOT
+ifndef MESA_DIR_INTENTIONALLY_EMPTY
+$(error MESASDK_ROOT enviroment variable is not set)
+endif
+endif
+
+
+include $(MESA_DIR)/utils/makefile_header
+
+#################################################################
+#
+# SOURCES
+
+COMMON_SRCS = \
+    lib_bbq.f90 lib_sampler.f90 lib_profile.f90 main.f90
+
+ONE_ZONE_SRCS = $(COMMON_SRCS) 
+
+#################################################################
+#
+# LIBRARIES
+
+LIBS_LOCAL = 
+DEPS_LOCAL = 
+LOAD_LOCAL =
+
+LIBS_OTHER = utils eos rates chem net $(LIBS_MESA_NUMERICS)
+DEPS_OTHER = $(patsubst %,$(MESA_LIB_DIR)/lib%.$(LIB_SUFFIX),$(LIBS_OTHER))
+LOAD_OTHER = -L$(MESA_LIB_DIR) -lutils -leos -lrates -lchem -lnet $(LOAD_MESA_NUMERICS)
+
+#################################################################
+#
+# TARGETS
+ONE_ZONE = $(TEST_DIR)/bbq
+
+ONE_ZONE_OBJS = $(patsubst %.f90,%.o,$(ONE_ZONE_SRCS))
+
+all : $(ONE_ZONE)
+
+$(ONE_ZONE) : $(ONE_ZONE_OBJS) $(DEPS_LOCAL) $(DEPS_OTHER)
+
+$(ONE_ZONE) : OBJS = $(ONE_ZONE_OBJS)
+
+$(TEST_DIR)/% :
+	$(LOADER) $(FCopenmp) -o $@ $(OBJS) $(LOAD_LOCAL) $(LOAD_OTHER) $(LD_FLAGS)
+
+clean:
+	-@rm -f *.o *.mod *.smod .depend $(ONE_ZONE) 
+
+nodeps : $(.DEFAULT_GOAL)
+
+#################################################################
+#
+# COMPILATION RULES
+
+%.o: %.f90
+	$(TEST_COMPILE) $(FCfree) $<
+
+#################################################################
+#
+# DEPENDENCIES
+
+SRC_PATH = $(TEST_SRC_DIR)
+
+vpath %.f90 $(SRC_PATH)
+
+vpath %.mod $(LOCAL_LIB_DIR):$(MESA_DIR)/include
+
+NODEPS = $(or $(filter nodeps,$(MAKECMDGOALS)),$(filter clean,$(MAKECMDGOALS)))
+
+ifeq ($(NODEPS),)
+
+  .depend :
+  ifneq ($(QUIET),)
+	@echo MAKEDEPF90
+	@$(MAKEDEPF90) -I$(SRC_PATH) $(SRCS) > .depend
+  else
+	$(MAKEDEPF90) -I$(SRC_PATH) $(SRCS) > .depend
+  endif
+
+  -include .depend
+
+endif
