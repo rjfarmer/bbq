@@ -37,6 +37,7 @@ module profile_lib
             call do_profile_burn(ierr)
             do i=1,num_loops    
                 do j=2,num_lines
+                    write(*,*) "Loop",i,"of",num_loops, "zone",j,"of",num_lines                    
                     loop_iter = j
                     if(reflective_boundaries) then
                         if(mod(i,2)==0) then
@@ -46,6 +47,10 @@ module profile_lib
                     call do_profile_burn(ierr)
                     if(ierr/=0) return
                 end do
+                ! Force a sync
+                close(fout)
+                open(newunit=fout,file=output_filename,status='old', position="append", action="write")
+
             end do
 
 
@@ -112,8 +117,6 @@ module profile_lib
                     avg_eps_nuc, eps_neu_total, xout, eps_nuc_categories, ierr )
         if(ierr/=0) return
   
-        total_t = total_t + 10**logtimes(loop_iter)
-  
         if(ierr==0) then
            write(fout,'(4(1pe26.16,1X))', ROUND='COMPATIBLE',ADVANCE='no') total_t,10**logtimes(loop_iter), logts(loop_iter), logrhos(loop_iter)
   
@@ -123,6 +126,7 @@ module profile_lib
            write(fout,*)
         end if
 
+        total_t = total_t + 10**logtimes(loop_iter)
         xin = xout
 
     end subroutine do_profile_burn
