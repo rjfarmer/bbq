@@ -13,7 +13,7 @@
 
 
     ! What mode to run
-    use_input_file = .false. ! Simply read from file and output burn data
+    use_input_file = .true. ! Simply read from file and output burn data
     use_random_sampling =.false. ! Randomly sample inputs
     use_profile=.false. ! Read a profile of (T,Rho) and burn material
     just_write_isos=.false.
@@ -27,10 +27,10 @@
 
 &sampling ! For both use_input_file and use_random_sampling
 
-    input_filename = ''
+    input_filename = 'input.txt'
 
-    output_starting_filename = '' ! leave empty to not output
-    output_ending_filename = ''
+    output_starting_filename = ''
+    output_ending_filename = 'output.txt'
 
     random_sampling = .false.
 

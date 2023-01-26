@@ -16,11 +16,11 @@
     use_input_file = .false. ! Simply read from file and output burn data
     use_random_sampling =.false. ! Randomly sample inputs
     use_profile=.false. ! Read a profile of (T,Rho) and burn material
-    just_write_isos=.false.
+    just_write_isos=.true.
 
-
+    
     write_iso_list = .true.
-    iso_list_filename = 'isos.txt'
+    iso_list_filename = 'iso.list'
 
 /
 
@@ -29,7 +29,7 @@
 
     input_filename = ''
 
-    output_starting_filename = '' ! leave empty to not output
+    output_starting_filename = ''
     output_ending_filename = ''
 
     random_sampling = .false.

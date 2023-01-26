@@ -16,7 +16,7 @@ module bbq_lib
    implicit none
 
 
-   character(len=strlen) :: net_name='',screening='',iso_list_filename=''
+   character(len=strlen) :: net_name='',screening_mode='',iso_list_filename=''
    integer ::  max_steps
    real(dp) :: weak_rate_factor, eps,odescal,stptry
    character(len=strlen) :: inlist_fname = 'inlist'
@@ -84,7 +84,7 @@ module bbq_lib
    real(dp), pointer :: pm_work(:) =>null()
 
    integer :: burn_lwork, net_lwork
-   integer :: screening_mode
+   integer :: screening_opt
 
    real(dp) :: told = 0
 
@@ -105,7 +105,7 @@ module bbq_lib
       read(unit,nml=bbq)
       close(unit)
 
-      screening_mode = screening_option(screening, ierr)
+      screening_opt = screening_option(screening_mode, ierr)
       if (ierr /= 0) then
          write(*,*) 'read_inlist failed setting screening mode'
          call mesa_error(__FILE__,__LINE__)
@@ -367,7 +367,7 @@ module bbq_lib
          num_times, times, log10Ts_f1, log10Rhos_f1, etas_f1, dxdt_source_term, &
          rate_factors, weak_rate_factor, &
          std_reaction_Qs, std_reaction_neuQs, &
-         screening_mode,  & 
+         screening_opt,  & 
          stptry, max_steps, eps, odescal, &
          .true., .false., burn_dbg, burn_finish_substep, &
          burn_lwork, burn_work_array, & 
@@ -375,6 +375,8 @@ module bbq_lib
          ending_x, eps_nuc_categories, &
          avg_eps_nuc, eps_neu_total, &
          nfcn, njac, nstep, naccpt, nrejct, ierr)
+
+         xout = ending_x
 
       contains
    
@@ -393,11 +395,14 @@ module bbq_lib
       integer :: fisos,j
       character(len=*),intent(in) :: filename
 
-      open(newunit=fisos,file=filename,status='replace',action='write')
-      do j=1,species
-         write(fisos,'(A)') chem_isos% name(g% chem_id(j))
-      end do
-      close(fisos)
+      if(just_write_isos .or. write_iso_list) then
+
+         open(newunit=fisos,file=filename,status='replace',action='write')
+         do j=1,species
+            write(fisos,'(A)') chem_isos% name(g% chem_id(j))
+         end do
+         close(fisos)
+      end if
 
    end subroutine write_isos
 

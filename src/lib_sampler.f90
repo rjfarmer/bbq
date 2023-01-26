@@ -1,5 +1,6 @@
 module sampler
    use bbq_lib
+   use math_lib
    implicit none
 
    real(dp) :: log_time_min = -12d0, log_time_max = 0d0
@@ -31,6 +32,7 @@ module sampler
    real(dp), allocatable :: xout(:)
    real(dp), target :: eps_nuc_categories(num_categories)
 
+   logical :: output_in=.true.
 
    contains
 
@@ -52,9 +54,9 @@ module sampler
          read(finput,'(A)',IOSTAT=iostat) line
          if(iostat/=0) stop 
          vec = 0d0
+
          call str_to_vector(line, vec, n, ierr)
-         
-         if(n/=species+3) stop 'Bad number of elemenets in row'
+         if(n/=species+3) call mesa_error(__FILE__,__LINE__, 'Bad number of elemenets in row')
 
          log_time = vec(1)
          logt_in = vec(2)
@@ -143,7 +145,9 @@ module sampler
 
       allocate(xin(species),vec(species+3),xout(species))
 
-      open(newunit=fin,file=output_starting_filename,status='replace',action='write')
+      output_in = len_trim(output_starting_filename) > 0
+
+      if(output_in) open(newunit=fin,file=output_starting_filename,status='replace',action='write')
       open(newunit=fout,file=output_ending_filename,status='replace',action='write')
 
 
@@ -170,16 +174,18 @@ module sampler
       integer :: ierr
 
       ierr=0
+      xout = 0d0
       call do_burn(logt_in, logrho_in, log_time, xin,&
                   avg_eps_nuc, eps_neu_total, xout, eps_nuc_categories, ierr )
       if(ierr/=0) return
 
 
       if(ierr==0) then
-         write(fin,'(1pe26.16,1X)', ROUND='COMPATIBLE',ADVANCE='no') log_time, logT, logRho
-         write(fout,'(1pe26.16,1X)', ROUND='COMPATIBLE',ADVANCE='no') avg_eps_nuc*10**log_time, eps_neu_total
+         if(output_in) write(fin,'(2(1pe26.16,1X))', ROUND='COMPATIBLE',ADVANCE='no') log_time, logT, logRho
+         write(fout,'(2(1pe26.16,1X))', ROUND='COMPATIBLE',ADVANCE='no') avg_eps_nuc*10**log_time, eps_neu_total
+
          do j=1,species
-            write(fin,'(1pe26.16)', ROUND='COMPATIBLE',ADVANCE='no') xin(j)
+            if(output_in) write(fin,'(1pe26.16)', ROUND='COMPATIBLE',ADVANCE='no') xin(j)
             write(fout,'(1pe26.16,1X)', ROUND='COMPATIBLE',ADVANCE='no') xout(j)
          end do
          write(fin,*)
@@ -187,9 +193,10 @@ module sampler
       end if
 
       if(mod(k,flush_freq)==0) then
-         close(fin)
+         if(output_in) close(fin)
          close(fout)
-         open(newunit=fin,file=output_starting_filename,status='old', position="append", action="write")
+
+         if(output_in) open(newunit=fin,file=output_starting_filename,status='old', position="append", action="write")
          open(newunit=fout,file=output_ending_filename,status='old', position="append", action="write")
          k = 1
       else
