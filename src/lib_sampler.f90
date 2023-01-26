@@ -1,4 +1,4 @@
-module sampler
+module sampler_lib
    use bbq_lib
    use math_lib
    implicit none
@@ -52,7 +52,7 @@ module sampler
 
          ! Read data
          read(finput,'(A)',IOSTAT=iostat) line
-         if(iostat/=0) stop 
+         if(iostat/=0) return
          vec = 0d0
 
          call str_to_vector(line, vec, n, ierr)
@@ -206,4 +206,4 @@ module sampler
    end subroutine do_sampler_burn
 
 
-end module sampler
+end module sampler_lib

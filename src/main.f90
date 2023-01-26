@@ -1,8 +1,8 @@
 program main
     use utils_lib
     use bbq_lib
-    use sampler
-    use profile
+    use sampler_lib
+    use profile_lib
 
 
     call net_setup()
