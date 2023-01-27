@@ -1,0 +1,13 @@
+#!/bin/bash
+
+failed=0
+
+for i in isos profile random sample big_net;
+do
+    cd "$i" || exit 1
+    ./rn
+    ./update
+    cd ../
+done
+
+exit $failed

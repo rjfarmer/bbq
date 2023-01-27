@@ -104,6 +104,12 @@ module sampler_lib
          if(trim(chem_isos% name(g% chem_id(j)))=='prot') prot_id = j
       end do
 
+      write(fout,'(A)',advance='no') '# eps_nuc eps_neu '
+      do j=1,species
+         write(fout,'(A)',advance='no') trim(chem_isos% name(g% chem_id(j)))//' '
+      end do
+      write(fout,*)
+
    end subroutine sampler_setup
 
 

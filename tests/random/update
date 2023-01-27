@@ -1,0 +1,4 @@
+#!/bin/bash
+
+cp out.txt reference_out.txt
+cp start.txt reference_start.txt

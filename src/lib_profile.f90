@@ -5,12 +5,12 @@ module profile_lib
     implicit none
 
     character(len=strlen) :: input_filename='',output_filename='',input_composition_filename=''
-    logical :: reflective_boundaries=.true.
+    logical :: reflective_boundaries=.true.,write_comp_every_loop=.false.
     integer :: num_loops = 1
 
 
     namelist /profile/ input_filename,output_filename, reflective_boundaries, num_loops,&
-                       input_composition_filename
+                       input_composition_filename,write_comp_every_loop
 
 
     integer :: finput, fout
@@ -25,7 +25,9 @@ module profile_lib
 
     subroutine run_profile(inlist)
         character(len=*) :: inlist
-        integer :: i,j, ierr
+        integer :: i,j, ierr, fcomp
+        character(len=8) :: fmt
+        character(len=256) :: filename
 
         call read_profile_inlist(inlist)
 
@@ -50,6 +52,18 @@ module profile_lib
                 ! Force a sync
                 close(fout)
                 open(newunit=fout,file=output_filename,status='old', position="append", action="write")
+
+                if(write_comp_every_loop) then
+                    write(fmt,'(I0)') i
+                    filename = 'comp_'//trim(fmt)//'.txt'
+                    open(newunit=fcomp,file=filename,status='new',action="write")
+
+                    do j=1,species
+                        write(fcomp,'(1pe26.16,1X)', ROUND='COMPATIBLE') xout(j)
+                    end do
+
+                    close(fcomp)
+                end if
 
             end do
 
@@ -103,7 +117,13 @@ module profile_lib
 
         open(newunit=fout,file=output_filename,status='replace',action='write')
 
-   
+        !Write header
+        write(fout,'(A)',advance='no') '# age dt logt logrho '
+        do j=1,species
+            write(fout,'(A)',advance='no') trim(chem_isos% name(g% chem_id(j)))//' '
+        end do
+        write(fout,*)
+
     end subroutine profile_setup
 
     subroutine do_profile_burn(ierr)

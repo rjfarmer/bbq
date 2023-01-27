@@ -1,0 +1,3 @@
+#!/bin/bash
+
+cp output.txt reference_out.txt

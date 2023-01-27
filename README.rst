@@ -107,7 +107,7 @@ In this mode we read the data from an input file and process each line one by on
         input_filename = ''
 
         ! Outputs:
-        !eps_nuc(erg/g/gs) eps_neu(erg/g/gs) composition
+        !eps_nuc(erg/g/gs) eps_neu(erg/g/s) composition
         output_filename = ''
 
     /
@@ -124,7 +124,7 @@ In this mode we randomly sample the input options::
       output_starting_filename 
 
       ! Where to output final composition of step
-      !eps_nuc(erg/g/gs) eps_neu(erg/g/gs) composition
+      !eps_nuc(erg/g/gs) eps_neu(erg/g/s) composition
       output_ending_filename 
 
       ! How many samples to draw, negative means unlimited

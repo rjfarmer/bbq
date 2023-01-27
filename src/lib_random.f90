@@ -137,6 +137,21 @@ module random_lib
          if(trim(chem_isos% name(g% chem_id(j)))=='prot') prot_id = j
       end do
 
+      !Write header
+      write(fout,'(A)',advance='no') '# eps_nuc eps_neu '
+      do j=1,species
+          write(fout,'(A)',advance='no') trim(chem_isos% name(g% chem_id(j)))//' '
+      end do
+      write(fout,*)
+
+      !Write header
+      write(fin,'(A)',advance='no') '# log_age logt logrho '
+      do j=1,species
+         write(fin,'(A)',advance='no') trim(chem_isos% name(g% chem_id(j)))//' '
+      end do
+      write(fin,*)
+
+
    end subroutine random_setup
 
 
