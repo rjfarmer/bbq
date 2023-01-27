@@ -1,0 +1,17 @@
+#!/bin/bash
+
+failed=0
+
+for i in isos profile random sample;
+do
+    cd "$i" || exit 1
+    if ./test 2>&1 >/dev/null; then
+        echo "$i passed"
+    else
+        echo "$i failed"
+        failed=1
+    fi
+    cd ../
+done
+
+exit $failed

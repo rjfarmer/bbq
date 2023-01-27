@@ -1,3 +1,3 @@
 #!/bin/bash
 
-diff iso.list reference.txt
+diff output.txt reference_out.txt
