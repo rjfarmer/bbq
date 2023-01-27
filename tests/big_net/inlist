@@ -1,26 +1,33 @@
 &bbq
 
     ! Physcis options
-    net_name = 'approx21.net'
+    net_name = 'mesa_495.net'
     screening_mode = 'chugunov'
     weak_rate_factor = 1
 
     ! Solver tolerances
     max_steps = 1000000
-    eps = 1d-8
-    odescal = 1d-10
+    eps = 1d-4
+    odescal = 1d-6
     stptry = 0
 
 
     ! What mode to run
-    
+    use_input_file = .true.
+
     write_iso_list = .true.
     iso_list_filename = 'iso.list'
+
 
 /
 
 
-&sampling ! For both use_input_file and use_random_sampling
+&sampling ! For use_input_file 
+
+    input_filename = 'input.txt'
+    output_filename = 'output.txt'
+
+    uniform_composition = .true.
 
 /
 

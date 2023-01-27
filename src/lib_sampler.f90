@@ -5,10 +5,9 @@ module sampler_lib
 
    character(len=strlen) :: input_filename='',output_filename=''
 
-   logical :: random_sampling = .false.
-   integer :: num_samples=-1
+   logical :: uniform_composition = .false.
 
-   namelist /sampling/ input_filename, output_filename
+   namelist /sampling/ input_filename, output_filename, uniform_composition
 
    real(dp),allocatable :: xin(:)
    real(dp), pointer :: vec(:)
@@ -45,12 +44,23 @@ module sampler_lib
          vec = 0d0
 
          call str_to_vector(line, vec, n, ierr)
-         if(n/=species+3) call mesa_error(__FILE__,__LINE__, 'Bad number of elemenets in row')
 
-         log_time = vec(1)
-         logt_in = vec(2)
-         logrho_in = vec(3)
-         xin(:) = vec(4:species+3)
+         if(uniform_composition) then
+            if(n/=3) call mesa_error(__FILE__,__LINE__, 'Bad number of elemenets in row')
+
+            log_time = vec(1)
+            logt_in = vec(2)
+            logrho_in = vec(3)
+            xin(:) = 1.d0/size(xin)
+         else
+
+            if(n/=species+3) call mesa_error(__FILE__,__LINE__, 'Bad number of elemenets in row')
+
+            log_time = vec(1)
+            logt_in = vec(2)
+            logrho_in = vec(3)
+            xin(:) = vec(4:species+3)
+         end if
 
          call do_sampler_burn(ierr)
          if(ierr/=0) return

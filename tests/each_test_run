@@ -2,7 +2,7 @@
 
 failed=0
 
-for i in isos profile random sample;
+for i in isos profile random sample big_net;
 do
     cd "$i" || exit 1
     if ./test 2>&1 >/dev/null; then
