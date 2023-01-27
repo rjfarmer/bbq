@@ -1,4 +1,4 @@
-bbq
+BBQ
 ===
 
 ``bbq`` is a one-zone nuclear network solver that uses MESA's microphysics for solving the change in composition from nuclear burning.
@@ -190,3 +190,4 @@ This isn't a standalone mode but just specifies the EOS choices (this is needed 
 This is exactly the same as MESA's normal eos inlist and supports nested calls to other eos inlists.
 
 See `MESA's eos options <https://docs.mesastar.org/en/release-r22.05.1/reference/eos.html>`_ for the full set of supported options.
+
