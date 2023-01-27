@@ -312,10 +312,10 @@ module bbq_lib
       use utils_lib
 
       real(dp),intent(in) :: burn_logT, burn_logRho, log_burn_tend
-      real(dp),intent(in) :: xin(species)
+      real(dp),intent(in) :: xin(:)
 
       real(dp),intent(out) :: avg_eps_nuc, eps_neu_total
-      real(dp), intent(out) :: xout(species)
+      real(dp), intent(out) :: xout(:)
       real(dp), intent(out), target :: eps_nuc_categories(num_categories)
 
       integer, intent(out) :: ierr
@@ -376,7 +376,7 @@ module bbq_lib
          avg_eps_nuc, eps_neu_total, &
          nfcn, njac, nstep, naccpt, nrejct, ierr)
 
-         xout = ending_x
+      xout = ending_x
 
       contains
    

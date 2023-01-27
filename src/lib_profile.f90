@@ -117,14 +117,12 @@ module profile_lib
                     avg_eps_nuc, eps_neu_total, xout, eps_nuc_categories, ierr )
         if(ierr/=0) return
   
-        if(ierr==0) then
-           write(fout,'(4(1pe26.16,1X))', ROUND='COMPATIBLE',ADVANCE='no') total_t,10**logtimes(loop_iter), logts(loop_iter), logrhos(loop_iter)
-  
-           do j=1,species
-              write(fout,'(1pe26.16,1X)', ROUND='COMPATIBLE',ADVANCE='no') xout(j)
-           end do
-           write(fout,*)
-        end if
+        write(fout,'(4(1pe26.16,1X))', ROUND='COMPATIBLE',ADVANCE='no') total_t,10**logtimes(loop_iter), logts(loop_iter), logrhos(loop_iter)
+
+        do j=1,species
+            write(fout,'(1pe26.16,1X)', ROUND='COMPATIBLE',ADVANCE='no') xout(j)
+        end do
+        write(fout,*)
 
         total_t = total_t + 10**logtimes(loop_iter)
         xin = xout
