@@ -2,7 +2,8 @@ bbq
 ===
 
 `bbq` is a one-zone nuclear network solver that uses MESA's microphysics for solving the change in composition from nuclear burning.
-
+It does this by integrating the change in composition due to nuclear burning at constant temperature and density with a semi-implicit midpoint rule.
+More details about the MESA implementation can be found in `Section 10.2 <https://ui.adsabs.harvard.edu/abs/2022arXiv220803651J/abstract>`_.
 
 
 Installation
