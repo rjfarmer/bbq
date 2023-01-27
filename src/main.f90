@@ -3,6 +3,7 @@ program main
     use bbq_lib
     use sampler_lib
     use profile_lib
+    use random_lib
 
 
     call net_setup()
@@ -16,7 +17,7 @@ program main
     if(use_input_file) then
         call run_sampler_from_file(inlist_fname)
     else if(use_random_sampling) then
-        call run_sampler_random(inlist_fname)
+        call run_random(inlist_fname)
     else if (use_profile) then
         call run_profile(inlist_fname)
     else

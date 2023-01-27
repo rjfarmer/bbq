@@ -1,3 +1,4 @@
 #!/bin/bash
 
-diff iso.list reference.txt
+diff out.txt reference_out.txt
+diff start.txt reference_start.txt

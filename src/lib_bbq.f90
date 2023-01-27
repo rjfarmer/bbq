@@ -17,16 +17,18 @@ module bbq_lib
 
 
    character(len=strlen) :: net_name='',screening_mode='',iso_list_filename=''
-   integer ::  max_steps
-   real(dp) :: weak_rate_factor, eps,odescal,stptry
+   integer ::  max_steps=1000
+   real(dp) :: weak_rate_factor=1, eps=1d-8,odescal=1d-10,stptry=0
    character(len=strlen) :: inlist_fname = 'inlist'
    logical :: use_input_file=.false.,use_random_sampling=.false.,use_profile=.false.
-   logical :: just_write_isos,write_iso_list
+   logical :: just_write_isos=.false.,write_iso_list=.true.
+   integer  :: flush_freq = 50
 
    namelist /bbq/ net_name, screening_mode, weak_rate_factor, &
                   eps, odescal, stptry, max_steps, &
                   use_input_file, use_random_sampling, use_profile,&
-                  iso_list_filename, just_write_isos, write_iso_list
+                  iso_list_filename, just_write_isos, write_iso_list,&
+                  flush_freq
 
 
 

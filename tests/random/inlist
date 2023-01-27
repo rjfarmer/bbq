@@ -14,7 +14,7 @@
 
     ! What mode to run, must pick one
     use_input_file = .false. ! Simply read from file and output burn data
-    use_random_sampling =.false. ! Randomly sample inputs
+    use_random_sampling =.true. ! Randomly sample inputs
     use_profile=.false. ! Read a profile of (T,Rho) and burn material
     just_write_isos=.false.
 
@@ -36,10 +36,10 @@
 
 &random ! For use_random_sampling
 
-    output_starting_filename = '' 
-    output_ending_filename = ''
+    output_starting_filename = 'start.txt' 
+    output_ending_filename = 'out.txt'
 
-    num_samples = -1 ! Negative means unlimited
+    num_samples = 100 ! Negative means unlimited
 
     log_time_min = -12 ! log integration time in s
     log_time_max = 0
@@ -55,7 +55,7 @@
 
     neut_prot_limit_frac = 0.05 ! Limit abundance of free neut's/prots
 
-    seed = 42 ! If negative use a different one each time
+    seed = 42
 
 /
 

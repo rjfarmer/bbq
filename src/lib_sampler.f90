@@ -3,29 +3,18 @@ module sampler_lib
    use math_lib
    implicit none
 
-   real(dp) :: log_time_min = -12d0, log_time_max = 0d0
-   real(dp) :: log_temp_min = 8d0, log_temp_max = 10.0d0
-   real(dp) :: log_rho_min = 0d0, log_rho_max= 10d0
-   real(dp) :: log_xa_min = -30d0, log_xa_max = 0d0
-   real(dp) :: neut_prot_limit_frac = 0.05
-   integer  :: flush_freq = 50
-   character(len=strlen) :: input_filename='',output_starting_filename='',output_ending_filename=''
+   character(len=strlen) :: input_filename='',output_filename=''
 
    logical :: random_sampling = .false.
    integer :: num_samples=-1
 
-   namelist /sampling/ log_time_min, log_time_max, log_temp_min, log_temp_max, &
-                       log_rho_min,  log_rho_max, log_xa_min, log_xa_max, &
-                       neut_prot_limit_frac, flush_freq, &
-                       input_filename, output_starting_filename, output_ending_filename,&
-                       random_sampling, num_samples
-
+   namelist /sampling/ input_filename, output_filename
 
    real(dp),allocatable :: xin(:)
    real(dp), pointer :: vec(:)
    character(len=4096) :: line
    integer :: neut_id, prot_id
-   real(dp) :: r, time,logt_in,logrho_in,sum,log_time
+   real(dp) :: time,logt_in,logrho_in,sum,log_time
    integer :: i,j,n,iostat, k, fin, fout, finput
 
    real(dp) :: avg_eps_nuc, eps_neu_total
@@ -69,57 +58,6 @@ module sampler_lib
 
    end subroutine run_sampler_from_file
 
-   subroutine run_sampler_random(inlist)
-      character(len=*),intent(in) :: inlist
-      real(dp) :: r
-      integer :: total, ierr
-
-      call read_sampler_inlist(inlist)
-
-      call random_init(.false., .false.)
-      call random_number(r)
-
-      call sampler_setup()
-         
-      total = 0
-      k=0
-      do 
-         if(num_samples>0 .and. total>num_samples) exit
-         total = total+1
-
-         call random_number(r)
-         log_time = flat_r(log_time_min,log_time_max,r)
-
-         call random_number(r)
-         logt_in = flat_r(log_temp_min, log_temp_max,r)
-
-         call random_number(r)
-         logrho_in = flat_r(log_rho_min, log_rho_max,r)
-
-         sum = 0d0
-         xin=0d0
-         do j=1,species
-            call random_number(r)
-            if(j==neut_id .or. j==prot_id) then
-               ! Limit the amount of free neutrons or protons
-               xin(j) = exp10(flat_r(log_xa_min,log10(neut_prot_limit_frac),r))
-            else
-               xin(j) = exp10(flat_r(log_xa_min,log_xa_max,r))
-            end if
-            sum = sum + xin(j)
-         end do
-
-         xin = xin/sum
-
-         call do_sampler_burn(ierr)
-         if(ierr/=0) return
-
-      end do
-
-
-   end subroutine run_sampler_random
-
-
    subroutine read_sampler_inlist(inlist)
       character(len=*), intent(in) :: inlist
       integer :: unit, ierr, status
@@ -132,24 +70,13 @@ module sampler_lib
 
    end subroutine read_sampler_inlist
 
-   real(dp) function flat_r(minx,maxx,ran)
-      real(dp),intent(in) :: minx,maxx,ran
-
-      flat_r = (ran * (maxx-minx)) + minx
-
-   end function flat_r
-
 
    subroutine sampler_setup()
       integer :: fisos
 
       allocate(xin(species),vec(species+3),xout(species))
 
-      output_in = len_trim(output_starting_filename) > 0
-
-      if(output_in) open(newunit=fin,file=output_starting_filename,status='replace',action='write')
-      open(newunit=fout,file=output_ending_filename,status='replace',action='write')
-
+      open(newunit=fout,file=output_filename,status='replace',action='write')
 
       if(write_iso_list) then
          call write_isos(iso_list_filename)
@@ -180,24 +107,16 @@ module sampler_lib
       if(ierr/=0) return
 
 
-      if(ierr==0) then
-         if(output_in) write(fin,'(2(1pe26.16,1X))', ROUND='COMPATIBLE',ADVANCE='no') log_time, logT, logRho
-         write(fout,'(2(1pe26.16,1X))', ROUND='COMPATIBLE',ADVANCE='no') avg_eps_nuc*10**log_time, eps_neu_total
+      write(fout,'(2(1pe26.16,1X))', ROUND='COMPATIBLE',ADVANCE='no') avg_eps_nuc*10**log_time, eps_neu_total
 
-         do j=1,species
-            if(output_in) write(fin,'(1pe26.16)', ROUND='COMPATIBLE',ADVANCE='no') xin(j)
-            write(fout,'(1pe26.16,1X)', ROUND='COMPATIBLE',ADVANCE='no') xout(j)
-         end do
-         write(fin,*)
-         write(fout,*)
-      end if
+      do j=1,species
+         write(fout,'(1pe26.16,1X)', ROUND='COMPATIBLE',ADVANCE='no') xout(j)
+      end do
+      write(fout,*)
 
       if(mod(k,flush_freq)==0) then
-         if(output_in) close(fin)
          close(fout)
-
-         if(output_in) open(newunit=fin,file=output_starting_filename,status='old', position="append", action="write")
-         open(newunit=fout,file=output_ending_filename,status='old', position="append", action="write")
+         open(newunit=fout,file=output_filename,status='old', position="append", action="write")
          k = 1
       else
          k = k+1
