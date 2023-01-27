@@ -1,7 +1,7 @@
 bbq
 ===
 
-`bbq` is a one-zone nuclear network solver that uses MESA's microphysics for solving the change in composition from nuclear burning.
+``bbq`` is a one-zone nuclear network solver that uses MESA's microphysics for solving the change in composition from nuclear burning.
 It does this by integrating the change in composition due to nuclear burning at constant temperature and density with a semi-implicit midpoint rule.
 More details about the MESA implementation can be found in `Section 10.2 <https://ui.adsabs.harvard.edu/abs/2022arXiv220803651J/abstract>`_.
 
@@ -10,7 +10,7 @@ Installation
 ------------
 
 First ensure that you have installed `MESA <https://docs.mesastar.org/en/release-r22.05.1/installation.html>`_ and have the
-environment variable `MESA_DIR` pointing to your MESA installation.
+environment variable ``MESA_DIR`` pointing to your MESA installation.
 
 Currently supported MESA versions:
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -25,14 +25,14 @@ Then run::
 
     ./mk
 
-You will now have a executable called `bbq` which can be ran with `./bbq` to run the code. This file can be moved outside of the 
+You will now have a executable called ``bbq`` which can be ran with ``./bbq`` to run the code. This file can be moved outside of the 
 source folder if wanted, it has no dependencies on the src folder.
 
 
 Running
 -------
 
-When `./bbq` is invoked it will search for a file called `inlist` in the current working directory. You can over this by providing path to the inlist on the command line `./bbq /path/to/other/inlist`.
+When ``./bbq`` is invoked it will search for a file called ``inlist`` in the current working directory. You can over this by providing path to the inlist on the command line ``./bbq /path/to/other/inlist``.
 
 
 Modes of operation
@@ -91,7 +91,7 @@ Common options for all modes::
 
 
 
-For specifying the composition in input files (and the order in the output files) this must always be in MESA's `net_iso` order. To determine the `net_iso` order for a nuclear network set `just_write_isos=.true.` and `iso_list_filename` and run `bbq`. This will output in the `iso_list_filename` file the isotopes in `net_iso` order, one per line.
+For specifying the composition in input files (and the order in the output files) this must always be in MESA's ``net_iso`` order. To determine the ``net_iso`` order for a nuclear network set ``just_write_isos=.true.`` and ``iso_list_filename`` and run ``bbq``. This will output in the ``iso_list_filename`` file the isotopes in ``net_iso`` order, one per line.
 
 
 
