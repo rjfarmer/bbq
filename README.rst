@@ -179,3 +179,13 @@ In this mode we read the data from an input file and process each line but assum
         num_loops = 1
 
     / 
+
+
+
+eos
+~~~
+
+This isn't a standalone mode but just specifies the EOS choices (this is needed for the elctron degeneracy parameter that the weak rates need)
+This is exactly the same as MESA's normal eos inlist and supports nested calls to other eos inlists.
+
+See `MESA's eos options <https://docs.mesastar.org/en/release-r22.05.1/reference/eos.html>`_ for the full set of supported options.
