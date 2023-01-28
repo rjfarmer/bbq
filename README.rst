@@ -3,7 +3,7 @@ BBQ
 
 ``bbq`` is a one-zone nuclear network solver that uses MESA's microphysics for solving the change in composition from nuclear burning.
 It does this by integrating the change in composition due to nuclear burning at constant temperature and density with a semi-implicit midpoint rule.
-More details about the MESA implementation can be found in `Section 10.2 <https://ui.adsabs.harvard.edu/abs/2022arXiv220803651J/abstract>`_.
+More details about the MESA implementation can be found in `Section 10.2 of Jermyn et al 2023 <https://ui.adsabs.harvard.edu/abs/2022arXiv220803651J/abstract>`_.
 
 
 Installation
@@ -32,7 +32,7 @@ source folder if wanted, it has no dependencies on the src folder.
 Running
 -------
 
-When ``./bbq`` is invoked it will search for a file called ``inlist`` in the current working directory. You can over this by providing path to the inlist on the command line ``./bbq /path/to/other/inlist``.
+When ``./bbq`` is invoked it will search for a file called ``inlist`` in the current working directory. You can override this by providing a path to the inlist on the command line ``./bbq /path/to/other/inlist``.
 
 
 Modes of operation
@@ -46,7 +46,7 @@ There are currently three modes that can be ran, each mode has its own inlist op
 
 In the following section we describe each mode and its inlist options
 
-A note on inputs/outputs, the base units for all quantities are: temperatures in Kelvin, densities in g/cm^{-3}, time in seconds, and composition in abundances. Some quantities may be in log base 10 when specified.
+A note on inputs/outputs, the base units for all quantities are: temperatures in Kelvin, densities in g/cm^{-3}, time in seconds, and composition in abundances. Some quantities may be in log10 when specified.
 
 
 bbq
@@ -172,7 +172,7 @@ In this mode we read the data from an input file and process each line but assum
         ! total_time(s) dt(s) log(T/K) log(rho/gcm^{-3})
         output_filename 
 
-        ! After processing input_filename what to do at the end,
+        ! After processing the data in input_filename, this deciedes what we do next,
         ! if this is false we just stop
         ! if this is true we will repeat the thermodynamic trajectory but in reverse order and do this num_loops number of times.
         ! This can be thought of if a packet of material was being burnt while being covectively mixed and we wish to follow the flow as it rises and falls multiple times.
