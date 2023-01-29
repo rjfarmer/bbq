@@ -19,8 +19,6 @@
     write_iso_list = .false.
     iso_list_filename = 'isos.txt'
 
-    flush_freq = 50 ! How often to force the output to disk
-
 /
 
 

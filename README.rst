@@ -16,9 +16,8 @@ Currently supported MESA versions:
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 * 22.05.01
-* 22.11.01
 
-Previous versions may work but depend on how the MESA internals have changed.
+Previous/future versions may work but depend on how the MESA internals have changed.
 
 
 Then run::
@@ -75,7 +74,7 @@ Common options for all modes::
       ! What mode to run, must pick one
       use_input_file = .false. ! Simply read from file and output burn data
       use_random_sampling =.false. ! Randomly sample inputs
-      use_profile=.false. ! Read a profile of (T,Rho) and burn material
+      use_profile=.false. ! Read a profile of (T,Rho) and follow the thermodynamic trajectory
 
       ! Only outputs the list of isotopes then stop
       just_write_isos=.false.
@@ -103,7 +102,7 @@ In this mode we read the data from an input file and process each line one by on
     &sampling
 
         ! File containing input data as: 
-        ! log(time/s) log(T/K) log(rho/gcm^{-3}) composition
+        ! time/s log(T/K) log(rho/gcm^{-3}) composition
         input_filename = ''
 
         ! Outputs:
@@ -120,7 +119,7 @@ In this mode we randomly sample the input options::
     &random
 
       ! Where to output starting points for the sample
-      ! log(time/s) log(T/K) log(rho/gcm^{-3}) composition
+      ! time/s log(T/K) log(rho/gcm^{-3}) composition
       output_starting_filename 
 
       ! Where to output final composition of step
@@ -162,7 +161,7 @@ In this mode we read the data from an input file and process each line but assum
 
     &profile
         ! Input file with
-        ! log(time/s) log(T/K) log(rho/gcm^{-3})
+        ! time/s log(T/K) log(rho/gcm^{-3})
         input_filename 
 
         ! Input file the abundances in net_iso order (one iso per line)

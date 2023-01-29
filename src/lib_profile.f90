@@ -1,166 +1,139 @@
 module profile_lib
-    use iso_fortran_env
-    use bbq_lib
+   use iso_fortran_env
+   use bbq_lib
+   use ctrls
 
-    implicit none
+   implicit none
 
-    character(len=strlen) :: input_filename='',output_filename='',input_composition_filename=''
-    logical :: reflective_boundaries=.true.,write_comp_every_loop=.false.
-    integer :: num_loops = 1
+   contains
 
+   subroutine run_profile(bbq_in)
+      type(bbq_t) :: bbq_in
+      type(profile_t) :: profile_in
+      type(inputs_t),allocatable :: in(:)
+      type(outputs_t) :: out
 
-    namelist /profile/ input_filename,output_filename, reflective_boundaries, num_loops,&
-                       input_composition_filename,write_comp_every_loop
+      integer :: i,j, ierr, fout, fcomp, num_lines
+      character(len=8) :: fmt
+      character(len=256) :: filename
+      real(dp) :: total_time
 
+      call load_profile_inputs(bbq_in% inlist, profile_in, ierr)
 
-    integer :: finput, fout
+      call profile_setup(bbq_in, profile_in, in)
 
-    real(dp),allocatable :: xin(:),xout(:),logts(:),logrhos(:),logtimes(:)
-    real(dp), pointer :: vec(:)
-    integer :: num_lines, loop_iter
-    real(dp) :: total_t=0
+      open(newunit=fout,file=profile_in% output_filename,status='old', position="append", action="write")
 
-
-    contains
-
-    subroutine run_profile(inlist)
-        character(len=*) :: inlist
-        integer :: i,j, ierr, fcomp
-        character(len=8) :: fmt
-        character(len=256) :: filename
-
-        call read_profile_inlist(inlist)
-
-        call profile_setup()
+      num_lines = size(in)
+      total_time = 0
 
 
-        if(reflective_boundaries) then
-            loop_iter = 1
-            call do_profile_burn(ierr)
-            do i=1,num_loops    
-                do j=2,num_lines
-                    write(*,*) "Loop",i,"of",num_loops, "zone",j,"of",num_lines                    
-                    loop_iter = j
-                    if(reflective_boundaries) then
-                        if(mod(i,2)==0) then
-                            loop_iter = num_lines - j +1
-                        end if
-                    end if
-                    call do_profile_burn(ierr)
-                    if(ierr/=0) return
-                end do
-                ! Force a sync
-                close(fout)
-                open(newunit=fout,file=output_filename,status='old', position="append", action="write")
+      do i=1,profile_in% num_loops
 
-                if(write_comp_every_loop) then
-                    write(fmt,'(I0)') i
-                    filename = 'comp_'//trim(fmt)//'.txt'
-                    open(newunit=fcomp,file=filename,status='new',action="write")
+         do j=1,num_lines
+            call do_profile_burn(in(j), out, bbq_in, total_time, fout, ierr )
+            if(j/=num_lines) in(j+1)% xa = out% xa
+            if(ierr/=0) return
+            write(*,*) "Loop",i,"of",profile_in% num_loops, "zone",j,"of",size(in)   
+         end do
+         if(.not. profile_in% reflective_boundaries) exit
 
-                    do j=1,species
-                        write(fcomp,'(1pe26.16,1X)', ROUND='COMPATIBLE') xout(j)
-                    end do
-
-                    close(fcomp)
-                end if
-
-            end do
-
-
-        else
-            do j=1,num_lines
-                loop_iter = j
-                call do_profile_burn(ierr)
-                if(ierr/=0) return
-            end do
-        end if
-
-    end subroutine run_profile
-
-
-    subroutine profile_setup()
-        integer :: i,j,fcomp,stat
-
-        allocate(xin(species),vec(3),xout(species))
-
-
-        if(write_iso_list) then
-            call write_isos(iso_list_filename)
-         end if
-
-        open(newunit=finput,file=input_filename,action='read')
-
-        num_lines = 0
-        do
-            read(finput,*,iostat=stat)
-            if (stat == iostat_end) exit
-            num_lines=num_lines+1
-        end do
-        rewind(finput)
-
-        allocate(logts(num_lines),logrhos(num_lines),logtimes(num_lines))
-
-        do i=1,num_lines
-            read(finput,*) logtimes(i),logts(i),logrhos(i)
+         do j=num_lines-1,2,-1
+            call do_profile_burn(in(j), out, bbq_in, total_time, fout, ierr )
+            if(ierr/=0) return
+            in(j-1)% xa = out% xa
+            write(*,*) "Loop",i,"of",profile_in% num_loops, "zone",j,"of",size(in)   
          end do
 
-        close(finput)
+         ! Force a sync
+         close(fout)
+         open(newunit=fout,file=profile_in% output_filename,status='old', position="append", action="write")
 
-        ! Read in composition
-        open(newunit=fcomp,file=input_composition_filename,action='read')
+         if(profile_in% write_comp_every_loop) then
+            write(fmt,'(I0)') i
+            filename = 'comp_'//trim(fmt)//'.txt'
+            open(newunit=fcomp,file=filename,status='replace',action="write")
 
-        do j=1,species
-            read(fcomp,*) xin(j)
-        end do
-        close(fcomp)
+            do j=1,size(in(1)% xa)
+                  write(fcomp,'(1pe26.16,1X)', ROUND='COMPATIBLE') out% xa(j)
+            end do
 
-        open(newunit=fout,file=output_filename,status='replace',action='write')
+            close(fcomp)
+         end if
 
-        !Write header
-        write(fout,'(A)',advance='no') '# age dt logt logrho '
-        do j=1,species
-            write(fout,'(A)',advance='no') trim(chem_isos% name(g% chem_id(j)))//' '
-        end do
-        write(fout,*)
+      end do
 
-    end subroutine profile_setup
-
-    subroutine do_profile_burn(ierr)
-        integer :: ierr,j
-        real(dp) :: avg_eps_nuc, eps_neu_total
-        real(dp), target :: eps_nuc_categories(num_categories)
-
-        ierr=0
-        xout = 0d0
-        call do_burn(logts(loop_iter), logrhos(loop_iter), logtimes(loop_iter), xin,&
-                    avg_eps_nuc, eps_neu_total, xout, eps_nuc_categories, ierr )
-        if(ierr/=0) return
-  
-        write(fout,'(4(1pe26.16,1X))', ROUND='COMPATIBLE',ADVANCE='no') total_t,10**logtimes(loop_iter), logts(loop_iter), logrhos(loop_iter)
-
-        do j=1,species
-            write(fout,'(1pe26.16,1X)', ROUND='COMPATIBLE',ADVANCE='no') xout(j)
-        end do
-        write(fout,*)
-
-        total_t = total_t + 10**logtimes(loop_iter)
-        xin = xout
-
-    end subroutine do_profile_burn
+   end subroutine run_profile
 
 
+   subroutine profile_setup(bbq_in, profile_in, in)
+      type(bbq_t) :: bbq_in
+      type(profile_t) :: profile_in
+      type(inputs_t), allocatable :: in(:)
 
-    subroutine read_profile_inlist(inlist)
-        character(len=*), intent(in) :: inlist
-        integer :: unit, ierr, status
-  
-        ierr = 0
-  
-        open(newunit=unit,file=inlist,status='old',action='read')
-        read(unit,nml=profile)
-        close(unit)
-  
-     end subroutine read_profile_inlist
+      integer :: i,j,fcomp,stat, finput, fout
+      integer :: num_lines, species
+
+      open(newunit=finput,file=profile_in% input_filename,action='read')
+
+      num_lines = 0
+      do
+         read(finput,*,iostat=stat)
+         if (stat == iostat_end) exit
+         num_lines=num_lines+1
+      end do
+      rewind(finput)
+
+      allocate(in(num_lines))
+
+      do i=1,num_lines
+         read(finput,*) in(i)% time, in(i)% logt, in(i)% logrho
+      end do
+
+      close(finput)
+
+      species = bbq_in% state% species
+      allocate(in(1)% xa(species))
+      ! Read in composition
+      open(newunit=fcomp,file=profile_in% input_composition_filename,action='read')
+
+      do j=1,species
+         read(fcomp,*) in(1)% xa(j)
+      end do
+      close(fcomp)
+
+      open(newunit=fout,file=profile_in% output_filename,status='replace',action='write')
+
+      write(fout,'(A)',advance='no') '# age dt logt logrho '
+
+      !Write header
+      call write_iso_names(bbq_in, fout)
+      close(fout)
+
+   end subroutine profile_setup
+
+   subroutine do_profile_burn(in, out, bbq_in, total_time, fout, ierr)
+      type(inputs_t) :: in
+      type(outputs_t) :: out
+      type(bbq_t) :: bbq_in
+      real(dp) :: total_time
+      integer :: fout
+      integer :: ierr,j
+
+      ierr=0
+      call do_burn(in, out, bbq_in, ierr )
+      if(ierr/=0) return
+
+      write(fout,'(4(1pe26.16,1X))', ROUND='COMPATIBLE',ADVANCE='no') total_time, in% time, in% logT, in% logRho
+
+      do j=1, size(in% xa)
+            write(fout,'(1pe26.16,1X)', ROUND='COMPATIBLE',ADVANCE='no') out% xa(j)
+      end do
+      write(fout,*)
+
+      total_time = total_time + in% time
+
+   end subroutine do_profile_burn
+
 
 end module profile_lib

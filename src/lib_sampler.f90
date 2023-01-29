@@ -1,142 +1,89 @@
 module sampler_lib
    use bbq_lib
    use math_lib
+   use iso_fortran_env
+
+   use ctrls
    implicit none
-
-   character(len=strlen) :: input_filename='',output_filename=''
-
-   logical :: uniform_composition = .false.
-
-   namelist /sampling/ input_filename, output_filename, uniform_composition
-
-   real(dp),allocatable :: xin(:)
-   real(dp), pointer :: vec(:)
-   character(len=4096) :: line
-   integer :: neut_id, prot_id
-   real(dp) :: time,logt_in,logrho_in,sum,log_time
-   integer :: i,j,n,iostat, k, fin, fout, finput
-
-   real(dp) :: avg_eps_nuc, eps_neu_total
-   real(dp), allocatable :: xout(:)
-   real(dp), target :: eps_nuc_categories(num_categories)
-
-   logical :: output_in=.true.
 
    contains
 
 
 
-   subroutine run_sampler_from_file(inlist)
-      character(len=*), intent(in) :: inlist
-      integer :: ierr
+   subroutine run_sampler_from_file(bbq_in)
+      type(bbq_t) :: bbq_in
+      type(sample_t) :: sample_in
+      integer :: ierr, finput,iostat
+      type(inputs_t) :: in
+      type(outputs_t) :: out 
 
-      call read_sampler_inlist(inlist)
+      character(len=strlen) :: line
+      real(dp),pointer :: vec(:) =>null()
+      integer :: species, n, fout
 
-      call sampler_setup()
+      call load_sampling_inputs(bbq_in% inlist, sample_in, ierr)
+
+      call sampler_setup(bbq_in, sample_in)
          
-      k = 0
+      ! Read existing data file
+      open(newunit=finput,file=sample_in% input_filename,status='old',action='read')
+
+      open(newunit=fout,file=sample_in% output_filename,status='old', position="append", action="write")
+
+
+      species = bbq_in% state% species 
+      allocate(in% xa(species),vec(3+species))
+
       do 
-         xin=0d0
-
+         in% xa = 0d0
          ! Read data
-         read(finput,'(A)',IOSTAT=iostat) line
-         if(iostat/=0) return
-         vec = 0d0
+         read(finput,'(A)',iostat=iostat) line
+         if (iostat == iostat_end) exit
 
-         call str_to_vector(line, vec, n, ierr)
+         call str_to_vector(line,vec,n,ierr)
 
-         if(uniform_composition) then
-            if(n/=3) call mesa_error(__FILE__,__LINE__, 'Bad number of elemenets in row')
+         in% time = vec(1)
+         in% logT = vec(2)
+         in% logRho = vec(3)
 
-            log_time = vec(1)
-            logt_in = vec(2)
-            logrho_in = vec(3)
-            xin(:) = 1.d0/size(xin)
+         if(sample_in% uniform_composition) then
+            in% xa = 1.d0/size(in% xa)
          else
-
-            if(n/=species+3) call mesa_error(__FILE__,__LINE__, 'Bad number of elemenets in row')
-
-            log_time = vec(1)
-            logt_in = vec(2)
-            logrho_in = vec(3)
-            xin(:) = vec(4:species+3)
+            in% xa = vec(4:)
          end if
 
-         call do_sampler_burn(ierr)
+         call do_sampler_burn(bbq_in, sample_in, in, out, fout, ierr)
          if(ierr/=0) return
       end do
 
    end subroutine run_sampler_from_file
 
-   subroutine read_sampler_inlist(inlist)
-      character(len=*), intent(in) :: inlist
-      integer :: unit, ierr, status
+   subroutine sampler_setup(bbq_in, sample_in)
+      type(bbq_t) :: bbq_in
+      type(sample_t) :: sample_in
+      integer :: fout
 
-      ierr = 0
-
-      open(newunit=unit,file=inlist,status='old',action='read')
-      read(unit,nml=sampling)
-      close(unit)
-
-   end subroutine read_sampler_inlist
-
-
-   subroutine sampler_setup()
-      integer :: fisos
-
-      allocate(xin(species),vec(species+3),xout(species))
-
-      open(newunit=fout,file=output_filename,status='replace',action='write')
-
-      if(write_iso_list) then
-         call write_isos(iso_list_filename)
-      end if
-
-      ! Read existing data file
-      open(newunit=finput,file=input_filename,status='old',action='read')
-
-      k = 1
-         
-      neut_id = -1
-      prot_id = -1
-      do j=1,species
-         if(trim(chem_isos% name(g% chem_id(j)))=='neut') neut_id = j
-         if(trim(chem_isos% name(g% chem_id(j)))=='prot') prot_id = j
-      end do
+      open(newunit=fout,file=sample_in% output_filename,status='replace',action='write')
 
       write(fout,'(A)',advance='no') '# eps_nuc eps_neu '
-      do j=1,species
-         write(fout,'(A)',advance='no') trim(chem_isos% name(g% chem_id(j)))//' '
-      end do
-      write(fout,*)
+      call write_iso_names(bbq_in, fout)
+      close(fout)
 
    end subroutine sampler_setup
 
 
-   subroutine do_sampler_burn(ierr)
-      integer :: ierr
+   subroutine do_sampler_burn(bbq_in, sample_in, in, out, fout, ierr)
+      type(bbq_t) :: bbq_in
+      type(sample_t) :: sample_in
+      type(inputs_t) :: in
+      type(outputs_t) :: out 
+      integer :: ierr, fout
 
       ierr=0
-      xout = 0d0
-      call do_burn(logt_in, logrho_in, log_time, xin,&
-                  avg_eps_nuc, eps_neu_total, xout, eps_nuc_categories, ierr )
+      call do_burn(in, out, bbq_in, ierr)
       if(ierr/=0) return
 
-
-      write(fout,'(2(1pe26.16,1X))', ROUND='COMPATIBLE',ADVANCE='no') avg_eps_nuc*10**log_time, eps_neu_total
-
-      do j=1,species
-         write(fout,'(1pe26.16,1X)', ROUND='COMPATIBLE',ADVANCE='no') xout(j)
-      end do
-      write(fout,*)
-
-      if(mod(k,flush_freq)==0) then
-         close(fout)
-         open(newunit=fout,file=output_filename,status='old', position="append", action="write")
-         k = 1
-      else
-         k = k+1
-      end if
+      call write_output(out, fout)
 
    end subroutine do_sampler_burn
 

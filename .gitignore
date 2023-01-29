@@ -4,3 +4,5 @@ bbq
 *.smod
 .depend
 .vscode
+fort.*
+comp_*.txt
