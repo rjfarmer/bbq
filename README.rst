@@ -1,3 +1,6 @@
+.. image:: https://zenodo.org/badge/DOI/10.5281/zenodo.7585202.svg
+   :target: https://doi.org/10.5281/zenodo.7585202
+
 BBQ
 ===
 
@@ -92,3 +95,11 @@ nuclear inlist
 ~~~~~~~~~~~~~~
 
 The ``nuclear`` inliust contains many of the nuclear related inlist options from MESA's `star_job <https://docs.mesastar.org/en/release-r22.11.1//reference/star_job.html>`_ and `controls <https://docs.mesastar.org/en/release-r22.11.1/reference/controls.html>`_ inlists. 
+
+
+Citing this work
+----------------
+
+See the CITATIONS.bib file for a set of bibtex entries to cite. At a minimum you should cite this repository via the version used via `Zenodo <https://doi.org/10.5281/zenodo.7585201>`_ as well as 
+`Jermyn et al 2023 <https://ui.adsabs.harvard.edu/abs/2022arXiv220803651J/abstract>`_. You should also cite the source of the micro physics you use (reaction rates, screening, equation of state, etc).
+The `MESA CITATIONS.bib <https://github.com/MESAHub/mesa/blob/main/CITATIONS.bib>`_ file contains many of these references, but it is up to you to ensure they are correct. 
