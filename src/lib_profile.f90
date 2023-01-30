@@ -29,9 +29,10 @@ module profile_lib
 
       ! Initaly setup the composition
       out% xa = in(1)% xa
+      ! Add initial line
+      call output_profile(fout, total_time, in(1), out)
 
       do i=1,profile_in% num_loops
-
          do j=1,num_lines
             in(j)% xa = out% xa
             call do_profile_burn(in(j), out, bbq_in, total_time, fout, ierr )
@@ -126,6 +127,18 @@ module profile_lib
       call do_burn(in, out, bbq_in, ierr )
       if(ierr/=0) return
 
+      total_time = total_time + in% time
+      call output_profile(fout, total_time,in,out)
+
+
+   end subroutine do_profile_burn
+
+   subroutine output_profile(fout,total_time, in, out)
+      type(inputs_t) :: in
+      type(outputs_t) :: out
+      real(dp) :: total_time
+      integer :: fout, j
+
       write(fout,'(4(1pe26.16,1X))', ROUND='COMPATIBLE',ADVANCE='no') total_time, in% time, in% logT, in% logRho
 
       do j=1, size(in% xa)
@@ -133,9 +146,7 @@ module profile_lib
       end do
       write(fout,*)
 
-      total_time = total_time + in% time
-
-   end subroutine do_profile_burn
+   end subroutine output_profile
 
 
 end module profile_lib
