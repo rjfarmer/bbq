@@ -27,21 +27,23 @@ module profile_lib
       num_lines = size(in)
       total_time = 0
 
+      ! Initaly setup the composition
+      out% xa = in(1)% xa
 
       do i=1,profile_in% num_loops
 
          do j=1,num_lines
+            in(j)% xa = out% xa
             call do_profile_burn(in(j), out, bbq_in, total_time, fout, ierr )
-            if(j/=num_lines) in(j+1)% xa = out% xa
             if(ierr/=0) return
             write(*,*) "Loop",i,"of",profile_in% num_loops, "zone",j,"of",size(in)   
          end do
          if(.not. profile_in% reflective_boundaries) exit
 
          do j=num_lines-1,2,-1
+            in(j)% xa = out% xa
             call do_profile_burn(in(j), out, bbq_in, total_time, fout, ierr )
             if(ierr/=0) return
-            in(j-1)% xa = out% xa
             write(*,*) "Loop",i,"of",profile_in% num_loops, "zone",j,"of",size(in)   
          end do
 
