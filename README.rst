@@ -10,7 +10,7 @@ More details about the MESA implementation can be found in `Section 10.2 of Jerm
 Installation
 ------------
 
-First ensure that you have installed `MESA <https://docs.mesastar.org/en/release-r22.05.1/installation.html>`_ and have the
+First ensure that you have installed `MESA <https://docs.mesastar.org/en/release-r22.11.1/installation.html>`_ and have the
 environment variable ``MESA_DIR`` pointing to your MESA installation.
 
 Currently supported MESA versions:
@@ -85,4 +85,10 @@ eos inlist
 
 The ``eos`` inlist is the same as the MESA EOS inlist and can contain anything that inlist specifies. It is the only inlist that allows
 for nesting of other inlists. 
-See `MESA's eos options <https://docs.mesastar.org/en/release-r22.05.1/reference/eos.html>`_ for the full set of supported options.
+See `MESA's eos options <https://docs.mesastar.org/en/release-r22.11.1/reference/eos.html>`_ for the full set of supported options.
+
+
+nuclear inlist
+~~~~~~~~~~~~~~
+
+The ``nuclear`` inliust contains many of the nuclear related inlist options from MESA's `star_job <https://docs.mesastar.org/en/release-r22.11.1//reference/star_job.html>`_ and `controls <https://docs.mesastar.org/en/release-r22.11.1/reference/controls.html>`_ inlists. 

@@ -2,8 +2,6 @@
 
     ! Physcis options
     net_name = 'approx21.net'
-    screening_mode = 'chugunov'
-    weak_rate_factor = 1
 
     ! Solver tolerances
     max_steps = 1000000
@@ -54,17 +52,15 @@
 
 &profile ! For use_profile
 
-    input_filename = ''
-    input_composition_filename = ''
-    output_filename = ''
-
-    reflective_boundaries=.true.
-    num_loops = 1
-
 
 /
 
 
 &eos
+
+/
+
+
+&nuclear
 
 /

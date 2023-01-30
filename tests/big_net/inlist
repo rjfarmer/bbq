@@ -2,8 +2,6 @@
 
     ! Physcis options
     net_name = 'mesa_495.net'
-    screening_mode = 'chugunov'
-    weak_rate_factor = 1
 
     ! Solver tolerances
     max_steps = 1000000
@@ -38,5 +36,9 @@
 
 
 &eos
+
+/
+
+&nuclear
 
 /

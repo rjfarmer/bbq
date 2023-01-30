@@ -2,109 +2,70 @@ module ctrls
    use const_def
    use net_def 
    use net_lib
+   use rates_def
 
    implicit none
 
+   integer, parameter :: max_num_special_rate_factors = 20
 
-   type rate_t
-         integer :: eos_handle, net_handle
-         integer :: species, num_reactions
 
-         type (Net_Info) :: netinfo_target
-         type (Net_Info), pointer :: netinfo =>null()
-         type (Net_General_Info), pointer :: g =>null()
+   type state_t
+      include 'private/state.inc'
+   end type state_t
 
-         real(dp), pointer :: rate_factors(:) =>null() ! (num_reactions)
-         integer, pointer :: net_reaction_ptr(:) =>null() 
+   type nuclear_t
+      include 'private/nuclear.inc'
 
-         integer, pointer :: reaction_id(:)
-         integer, dimension(:), pointer :: net_iso =>null(), chem_id =>null()
-                  
-         real(dp), pointer :: ending_x(:) =>null() ! (species)
-         integer :: nfcn    ! number of function evaluations
-         integer :: njac    ! number of jacobian evaluations
-         integer :: nstep   ! number of computed steps
-         integer :: naccpt  ! number of accepted steps
-         integer :: nrejct  ! number of rejected steps
-
-         real(dp), dimension(:), pointer :: &
-            rate_raw =>null(), rate_raw_dT =>null(), rate_raw_dRho =>null(), &
-            rate_screened =>null(), rate_screened_dT =>null(), rate_screened_dRho =>null()
-
-         integer :: screening_opt
-
-         integer :: neut_id, prot_id
-
-   end type rate_t
+      integer :: screening_opt
+   end type nuclear_t
 
    type bbq_t
-      character(len=strlen) :: net_name,screening_mode,iso_list_filename
-      integer ::  max_steps
-      real(dp) :: weak_rate_factor, eps,odescal,stptry
-      character(len=strlen) :: inlist
-      logical :: use_input_file,use_random_sampling,use_profile
-      logical :: just_write_isos,write_iso_list
+      include 'private/bbq.inc'
 
-      type(rate_t) :: state
+      type(state_t) :: state
+      type(nuclear_t) :: nuclear
    end type bbq_t
 
 
    type profile_t
-      character(len=strlen) :: input_filename,output_filename,input_composition_filename
-      logical :: reflective_boundaries,write_comp_every_loop
-      integer :: num_loops
+      include 'private/profile.inc'
    end type profile_t
 
    type random_t
-      real(dp) :: log_time_min, log_time_max
-      real(dp) :: log_temp_min, log_temp_max
-      real(dp) :: log_rho_min, log_rho_max
-      real(dp) :: log_xa_min, log_xa_max
-      real(dp) :: neut_prot_limit_frac
-      character(len=strlen) :: output_starting_filename,output_ending_filename
-      integer :: num_samples, seed
+      include 'private/random.inc'
    end type random_t
 
    type sample_t
-      character(len=strlen) :: input_filename,output_filename
-      logical :: uniform_composition
+      include 'private/sample.inc'
    end type sample_t
-   
+
 
    contains
 
 
-   subroutine load_bbq_inputs(inlist, options, ierr)
-      character(len=*), intent(in) :: inlist
+   subroutine load_bbq_inputs(inlist_in, options, ierr)
+      character(len=*), intent(in) :: inlist_in
       type(bbq_t), intent(inout) :: options
       integer, intent(out) :: ierr
       integer :: unit
 
-
-      character(len=strlen) :: net_name, screening_mode,iso_list_filename
-      integer ::  max_steps
-      real(dp) :: weak_rate_factor, eps,odescal,stptry
-      logical :: use_input_file,use_random_sampling,use_profile
-      logical :: just_write_isos,write_iso_list
-      integer  :: flush_freq
+      include 'private/bbq.inc'
    
-      namelist /bbq/ net_name, screening_mode, weak_rate_factor, &
+      namelist /bbq/ net_name, &
                      eps, odescal, stptry, max_steps, &
                      use_input_file, use_random_sampling, use_profile,&
                      iso_list_filename, just_write_isos, write_iso_list
 
       include '../defaults/bbq.defaults'
 
-      open(newunit=unit,file=inlist,status='old',action='read')
+      open(newunit=unit,file=inlist_in,status='old',action='read')
       read(unit,nml=bbq)
       close(unit)
 
-      options% inlist = inlist
+      options% inlist = inlist_in
       options% net_name = net_name
-      options% screening_mode = screening_mode
       options% iso_list_filename = iso_list_filename
       options% max_steps = max_steps
-      options% weak_rate_factor = weak_rate_factor
       options% eps = eps
       options% odescal = odescal
       options% stptry = stptry
@@ -123,9 +84,7 @@ module ctrls
       integer, intent(out) :: ierr
       integer :: unit
 
-      character(len=strlen) :: input_filename,output_filename,input_composition_filename
-      logical :: reflective_boundaries,write_comp_every_loop
-      integer :: num_loops
+      include 'private/profile.inc'
 
       namelist /profile/ input_filename,output_filename, reflective_boundaries, num_loops,&
                         input_composition_filename,write_comp_every_loop
@@ -154,13 +113,7 @@ module ctrls
       integer, intent(out) :: ierr
       integer :: unit
 
-      real(dp) :: log_time_min, log_time_max
-      real(dp) :: log_temp_min, log_temp_max
-      real(dp) :: log_rho_min, log_rho_max
-      real(dp) :: log_xa_min, log_xa_max
-      real(dp) :: neut_prot_limit_frac
-      character(len=strlen) :: output_starting_filename,output_ending_filename
-      integer :: num_samples, seed
+      include 'private/random.inc'
    
 
       namelist /random/ log_time_min, log_time_max, log_temp_min, log_temp_max, &
@@ -200,8 +153,7 @@ module ctrls
       integer, intent(out) :: ierr
       integer :: unit
 
-      character(len=strlen) :: input_filename,output_filename
-      logical :: uniform_composition
+      include 'private/sample.inc'
    
       namelist /sampling/ input_filename, output_filename, uniform_composition
 
@@ -219,6 +171,89 @@ module ctrls
 
 
    end subroutine load_sampling_inputs
+
+
+   subroutine load_nuclear_inputs(inlist, options, ierr)
+      character(len=*), intent(in) :: inlist
+      type(nuclear_t), intent(inout) :: options
+      integer, intent(out) :: ierr
+      integer :: unit
+
+      include 'private/nuclear.inc'
+   
+      namelist /nuclear/  &
+            num_special_rate_factors,&
+            special_rate_factor,&
+            reaction_for_special_factor,&
+            filename_of_special_rate,&
+            weaklib_blend_hi_Z,&
+            T9_weaklib_full_off,&
+            T9_weaklib_full_on, &
+            T9_weaklib_full_off_hi_Z,&
+            T9_weaklib_full_on_hi_Z,&
+            use_suzuki_weak_rates,&
+            use_3a_fl87,&
+            use_special_weak_rates,&
+            special_weak_states_file,&
+            special_weak_transitions_file,&
+            ion_coulomb_corrections,&
+            electron_coulomb_corrections,&
+            net_reaction_filename,&
+            jina_reaclib_filename,&
+            jina_reaclib_min_T9,&
+            rate_tables_dir,&
+            rate_cache_suffix,&
+            screening_mode,&
+            net_logTcut_lo,&
+            net_logTcut_lim,&
+            max_logT_for_net,&
+            weak_rate_factor,  &
+            fe56ec_fake_factor,&
+            min_T_for_fe56ec_fake_factor,&
+            warn_rates_for_high_temp,&
+            max_safe_logT_for_rates
+
+
+      include '../defaults/nuclear.defaults'
+
+      open(newunit=unit,file=inlist,status='old',action='read')
+      read(unit,nml=nuclear)
+      close(unit)
+
+
+      options% num_special_rate_factors = num_special_rate_factors
+      options% special_rate_factor = special_rate_factor
+      options% reaction_for_special_factor = reaction_for_special_factor
+      options% filename_of_special_rate = filename_of_special_rate
+      options% weaklib_blend_hi_Z = weaklib_blend_hi_Z
+      options% T9_weaklib_full_off = T9_weaklib_full_off
+      options% T9_weaklib_full_on = T9_weaklib_full_on
+      options% T9_weaklib_full_off_hi_Z = T9_weaklib_full_off_hi_Z
+      options% T9_weaklib_full_on_hi_Z = T9_weaklib_full_on_hi_Z
+      options% use_suzuki_weak_rates = use_suzuki_weak_rates
+      options% use_3a_fl87 = use_3a_fl87
+      options% use_special_weak_rates = use_special_weak_rates
+      options% special_weak_states_file = special_weak_states_file
+      options% special_weak_transitions_file = special_weak_transitions_file
+      options% ion_coulomb_corrections = ion_coulomb_corrections
+      options% electron_coulomb_corrections = electron_coulomb_corrections
+      options% net_reaction_filename = net_reaction_filename
+      options% jina_reaclib_filename = jina_reaclib_filename
+      options% jina_reaclib_min_T9 = jina_reaclib_min_T9
+      options% rate_tables_dir = rate_tables_dir
+      options% rate_cache_suffix = rate_cache_suffix
+      options% screening_mode = screening_mode
+      options% net_logTcut_lo = net_logTcut_lo
+      options% net_logTcut_lim = net_logTcut_lim
+      options% max_logT_for_net = max_logT_for_net
+      options% weak_rate_factor = weak_rate_factor
+      options% fe56ec_fake_factor = fe56ec_fake_factor
+      options% min_T_for_fe56ec_fake_factor = min_T_for_fe56ec_fake_factor
+      options% warn_rates_for_high_temp = warn_rates_for_high_temp
+      options% max_safe_logT_for_rates = max_safe_logT_for_rates
+
+   end subroutine load_nuclear_inputs
+
 
 
 end module ctrls

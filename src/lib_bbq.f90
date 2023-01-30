@@ -52,6 +52,9 @@ module bbq_lib
       call load_bbq_inputs(inlist, bbq_in, ierr)
       if(ierr/=0) return
 
+      call load_nuclear_inputs(bbq_in% inlist, bbq_in% nuclear, ierr)
+      if(ierr/=0) return
+
    end subroutine read_inlist
 
    subroutine setup_eos(bbq_in)
@@ -76,9 +79,12 @@ module bbq_lib
    end subroutine setup_eos
 
    subroutine load_libs(bbq_in)
-      type(bbq_t) :: bbq_in
+      type(bbq_t),target :: bbq_in
+      type(nuclear_t), pointer :: nuc => null()
       integer :: ierr
       character (len=64) :: my_mesa_dir
+
+      nuc => bbq_in% nuclear
 
       my_mesa_dir = ''         
       call const_init(my_mesa_dir,ierr)     
@@ -96,13 +102,17 @@ module bbq_lib
          call mesa_error(__FILE__,__LINE__)
       end if
 
-      call rates_init('reactions.list', '', 'rate_tables', .false., .false., &
-                     '', '', '',ierr)
+      call rates_init(nuc% net_reaction_filename, nuc% jina_reaclib_filename,&
+                     nuc% rate_tables_dir, &
+                     nuc% use_suzuki_weak_rates, nuc% use_special_weak_rates, &
+                     nuc% special_weak_states_file, nuc% special_weak_transitions_file,&
+                     '',&
+                     ierr)
       if (ierr /= 0) call mesa_error(__FILE__,__LINE__)
 
-      call rates_warning_init(.true., 10d0)
+      call rates_warning_init(nuc% warn_rates_for_high_temp ,nuc% max_safe_logT_for_rates)
 
-      bbq_in% state% screening_opt = screening_option(bbq_in% screening_mode, ierr)
+      nuc% screening_opt = screening_option(nuc% screening_mode, ierr)
       if (ierr /= 0) then
          write(*,*) 'read_inlist failed setting screening mode'
          call mesa_error(__FILE__,__LINE__)
@@ -113,7 +123,8 @@ module bbq_lib
    subroutine net_setup(bbq_in)
       type(bbq_t),target :: bbq_in
       integer :: ierr, j
-      type(rate_t), pointer :: s => null()
+      type(state_t), pointer :: s => null()
+      type(nuclear_t), pointer :: nuc => null()
       
       call read_inlist(bbq_in)
 
@@ -122,6 +133,7 @@ module bbq_lib
       call setup_eos(bbq_in)
 
       s => bbq_in% state
+      nuc => bbq_in% nuclear
 
       allocate(s% net_iso(num_chem_isos), &
                s% chem_id(num_chem_isos))
@@ -163,12 +175,6 @@ module bbq_lib
       s% num_reactions = s% g% num_reactions
 
       allocate(s% reaction_id(s% num_reactions))
-
-      call net_setup_tables(s% net_handle, cache_suffix, ierr)
-      if (ierr /= 0) then
-         write(*,*) 'net_setup_tables failed'
-         call mesa_error(__FILE__,__LINE__)
-      end if
       
       call get_chem_id_table(s% net_handle, s% species, s% chem_id, ierr)
       if (ierr /= 0) then
@@ -189,12 +195,6 @@ module bbq_lib
          call mesa_error(__FILE__,__LINE__)
       end if
       
-      call net_set_fe56ec_fake_factor(s% net_handle, 1d-7,3d9, ierr)
-      if (ierr /= 0) then
-         write(*,*) 'net_set_fe56ec_fake_factor failed'
-         call mesa_error(__FILE__,__LINE__)
-      end if
-
       s% netinfo => s% netinfo_target
 
       allocate( &
@@ -206,13 +206,43 @@ module bbq_lib
          call mesa_error(__FILE__,__LINE__)
       end if
 
-      s% rate_factors(:) = 1
+      call set_rate_factors(s, nuc, ierr)
+      if (ierr /= 0) then
+         write(*,*) 'failed in set_rate_factors'
+         call mesa_error(__FILE__,__LINE__)
+      end if  
+
+      call set_global_nuc_opts(s, nuc)
+
 
       call get_net_reaction_table_ptr(s% net_handle, &
                                        s% net_reaction_ptr, ierr)
       if (ierr /= 0) then
          write(*,*) 'bad net?  get_net_reaction_table_ptr failed'
          return
+      end if      
+
+      call set_rate_factors(s, nuc, ierr)
+      if (ierr /= 0) then
+         write(*,*) 'failed in set_rate_factors'
+         call mesa_error(__FILE__,__LINE__)
+      end if  
+
+      call set_global_nuc_opts(s, nuc)
+
+      call net_set_fe56ec_fake_factor(s% net_handle,&
+                                      nuc% fe56ec_fake_factor,&
+                                      nuc% min_T_for_fe56ec_fake_factor,&
+                                      ierr)
+      if (ierr /= 0) then
+         write(*,*) 'net_set_fe56ec_fake_factor failed'
+         call mesa_error(__FILE__,__LINE__)
+      end if
+
+      call net_setup_tables(s% net_handle, nuc% rate_cache_suffix, ierr)
+      if (ierr /= 0) then
+         write(*,*) 'net_setup_tables failed'
+         call mesa_error(__FILE__,__LINE__)
       end if
 
       s% neut_id = -1
@@ -225,10 +255,96 @@ module bbq_lib
    end subroutine net_setup
 
 
+   subroutine set_rate_factors(state, nuc, ierr)
+      type(state_t) :: state
+      type(nuclear_t) :: nuc
+      integer, intent(out) :: ierr
+      integer :: j, i, ir
+      logical :: error
+            
+      state% rate_factors(:) = 1
+      if (nuc% num_special_rate_factors <= 0) return
+            
+      do i=1,nuc% num_special_rate_factors
+         if (len_trim(nuc% reaction_for_special_factor(i)) == 0) cycle
+         ir = rates_reaction_id(nuc% reaction_for_special_factor(i))
+         j = 0
+         if (ir > 0) j = state% net_reaction_ptr(ir)
+         if (j <= 0) then
+            write(*,*) 'Failed to find reaction_for_special_factor ' // &
+            trim(nuc% reaction_for_special_factor(i)), &
+            j, nuc% special_rate_factor(i)
+            error = .true.
+            cycle
+         end if
+         state% rate_factors(j) = nuc% special_rate_factor(i)
+         write(*,*) 'set special rate factor for ' // &
+               trim(nuc% reaction_for_special_factor(i)), &
+               j, nuc% special_rate_factor(i)
+      end do
+
+      if(error) call mesa_error(__FILE__,__LINE__)
+
+
+      call read_rates_from_files(nuc% reaction_for_special_factor, nuc% filename_of_special_rate, ierr)
+      if (ierr /= 0) then
+         write(*,*) 'failed in read_rates_from_files'
+         return
+      end if
+      
+   end subroutine set_rate_factors
+
+
+   subroutine set_global_nuc_opts(state, nuc)
+      use rates_def
+      type(state_t) :: state
+      type(nuclear_t) :: nuc
+      integer :: ierr
+
+
+      if (abs(nuc% T9_weaklib_full_off - T9_weaklib_full_off) > 1d-6) then
+         write(*,*) 'set T9_weaklib_full_off', nuc% T9_weaklib_full_off
+         T9_weaklib_full_off = nuc% T9_weaklib_full_off
+      end if
+      
+      if (abs(nuc% T9_weaklib_full_on - T9_weaklib_full_on) > 1d-6) then
+         write(*,*) 'set T9_weaklib_full_on', nuc% T9_weaklib_full_on
+         T9_weaklib_full_on = nuc% T9_weaklib_full_on
+      end if
+      
+      if (nuc% weaklib_blend_hi_Z /= weaklib_blend_hi_Z) then
+         write(*,*) 'set weaklib_blend_hi_Z', nuc% weaklib_blend_hi_Z
+         weaklib_blend_hi_Z = nuc% weaklib_blend_hi_Z
+      end if
+      
+      if (abs(nuc% T9_weaklib_full_off_hi_Z - T9_weaklib_full_off_hi_Z) > 1d-6) then
+         write(*,*) 'set T9_weaklib_full_off_hi_Z', nuc% T9_weaklib_full_off_hi_Z
+         T9_weaklib_full_off_hi_Z = nuc% T9_weaklib_full_off_hi_Z
+      end if
+      
+      if (abs(nuc% T9_weaklib_full_on_hi_Z - T9_weaklib_full_on_hi_Z) > 1d-6) then
+         write(*,*) 'set T9_weaklib_full_on_hi_Z', nuc% T9_weaklib_full_on_hi_Z
+         T9_weaklib_full_on_hi_Z = nuc% T9_weaklib_full_on_hi_Z
+      end if
+
+      ! set up coulomb corrections for the special weak rates
+      which_mui_coulomb = get_mui_value(nuc% ion_coulomb_corrections)
+      which_vs_coulomb = get_vs_value(nuc% electron_coulomb_corrections)
+      
+
+      call net_set_logTcut(state% net_handle, nuc% net_logTcut_lo, nuc% net_logTcut_lim, ierr)
+      if (ierr /= 0) return
+
+   end subroutine set_global_nuc_opts
+
+
+
+
    subroutine do_burn(in, out, bbq_in,  ierr)
       type(inputs_t),intent(in) :: in
       type(outputs_t),intent(out) :: out
-      type(bbq_t) :: bbq_in
+      type(bbq_t),target :: bbq_in
+      type(nuclear_t), pointer :: nuc=>null()
       integer, intent(out) :: ierr
       
       real(dp) :: eta, logRho, logT, Rho, T, xsum, eps_nuc, d_eps_nuc_dRho, d_eps_nuc_dT, avg_eps_nuc
@@ -249,6 +365,8 @@ module bbq_lib
       real(dp), dimension(:,:), pointer :: &
           log10Ts_f =>null(), log10Rhos_f =>null(), etas_f =>null(), log10Ps_f =>null()
 
+
+      nuc => bbq_in% nuclear
 
       logT = in% logT
       T = exp10(logT)
@@ -299,9 +417,9 @@ module bbq_lib
          bbq_in% state% net_handle, bbq_in% state% eos_handle, bbq_in% state% species, &
          bbq_in% state% num_reactions, 0d0, times(1), in% xa, &
          num_times, times, log10Ts_f1, log10Rhos_f1, etas_f1, dxdt_source_term, &
-         bbq_in% state% rate_factors, bbq_in% weak_rate_factor, &
+         bbq_in% state% rate_factors, nuc% weak_rate_factor, &
          std_reaction_Qs, std_reaction_neuQs, &
-         bbq_in% state% screening_opt,  & 
+         nuc% screening_opt,  & 
          bbq_in% stptry, bbq_in% max_steps, bbq_in% eps, bbq_in% odescal, &
          .true., .false., burn_dbg, burn_finish_substep, &
          bbq_in% state% ending_x, out% eps_nuc_categories, &

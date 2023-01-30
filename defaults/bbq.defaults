@@ -3,12 +3,6 @@
       ! Nuclear network in MESA format. If path is not fully specified then we look in $MESA_DIR/data/net_data/nets
       net_name = 'approx21.net'
 
-      ! Screening mode
-      screening_mode = 'chugunov'
-
-      ! Scale factor for weak reactions
-      weak_rate_factor = 1
-
       ! Solver tolerances
       max_steps = 1000000
       eps = 1d-8

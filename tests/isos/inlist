@@ -2,8 +2,6 @@
 
     ! Physcis options
     net_name = 'approx21.net'
-    screening_mode = 'chugunov'
-    weak_rate_factor = 1
 
     ! What mode to run
     just_write_isos=.true.
@@ -26,5 +24,9 @@
 
 
 &eos
+
+/
+
+&nuclear
 
 /

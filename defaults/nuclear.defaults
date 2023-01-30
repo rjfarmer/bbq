@@ -1,0 +1,384 @@
+      ! Users can also provide tabulated rates for any of the reactions.
+      ! Tabulated rates automatically take priority over any other options for the reaction.
+      ! e.g., if you provide a rate table for c12ag, those rates will be used
+
+      ! To provide tabulated rates:
+      ! create a file of (T8, rate) pairs as in ``data/rates_data/rate_tables``
+      ! You can give as many pairs as you want with any spacing in T8.
+      ! The first uncommented line of the file should be a number giving the
+      ! total number of (T8, rate) pairs in the subsequent lines.
+      ! The following lines are your specified values of T8 and rate separated
+      ! by a single space, one pair per line.
+      ! Add the filename to ``rate_list.txt`` along with the name of the rate you
+      ! want it to govern, either in ``data/rates_data/rate_tables`` or in a local
+      ! directory specified with the ``rate_tables_dir`` control.
+      ! Be aware that if you choose to put the modified ``rate_list.txt`` in
+      ! ``data/rates_data/rate_tables`` rather than a local directory,
+      ! your custom tabulated rate will override the rate for that reaction
+      ! for all future MESA runs.
+
+      ! If the reaction you wish to control does not already have a
+      ! name that MESA will recognize, you will also need to add it to
+      ! the file specified by ``net_reaction_filename`` (defaults to reactions.list).
+      ! The default version of this file is located
+      ! in ``data/rates_data``.  If you place a modified copy of this file
+      ! in your work directory, it will take precedence.
+
+
+      ! num_special_rate_factors
+      ! ~~~~~~~~~~~~~~~~~~~~~~~~
+      ! reaction_for_special_factor
+      ! ~~~~~~~~~~~~~~~~~~~~~~~~~~~
+      ! special_rate_factor
+      ! ~~~~~~~~~~~~~~~~~~~
+      ! filename_of_special_rate
+      ! ~~~~~~~~~~~~~~~~~~~~~~~~
+
+      ! For using other special rate factors.
+      ! ``num_special_rate_factors`` must be <= ``max_num_special_rate_factors``.
+
+      ! ::
+
+    num_special_rate_factors = 0
+    reaction_for_special_factor(:) = ''
+    special_rate_factor(:) = 1
+
+      ! If set, we read this filename from the local work directory, then try ``data/rates_data/rate_tables``.
+      ! This enables using the MESA provide custom rate tables with out changing the default for everyone.
+      ! Note we still multiple the loaded rate by special_rate_factor so leave that as 1 if you want the rate to be unchanged.
+
+      ! For instance setting:
+      !    num_special_rate_factors = 1
+      !    reaction_for_special_factor(1) = 'r_c12_ag_o16'
+      !    special_rate_factor(1) = 1
+      !    filename_of_special_rate(1) = 'r_c12_ag_o16_kunz.txt'
+
+      ! Recovers the old set_rate_c12ag = 'Kunz' option
+
+    filename_of_special_rate(:) = ''
+
+
+      ! use_3a_fl87
+      ! ~~~~~~~~~~~
+
+      ! If true then the triple alpha reaction is taken from Fushiki and Lamb, Apj, 317, 368-388, 1987
+      ! This replaces the old set_rate_3a = 'Fl87' option
+
+      use_3a_fl87 = .false.
+
+      ! net_reaction_filename
+      ! ~~~~~~~~~~~~~~~~~~~~~
+
+      ! Looks first in current directory, then in ``mesa_data_dir/rates_data``.
+
+      ! ::
+
+      net_reaction_filename = 'reactions.list'
+
+
+      ! jina_reaclib_filename
+      ! ~~~~~~~~~~~~~~~~~~~~~
+
+      ! Empty string means use current standard version.
+      ! Which is defined in rates/public/rates_def.f90  as reaclib_filename
+      ! and is currently 'jina_reaclib_results_20171020_default'
+
+      ! Else give name of file in directory ``mesa/data/rates_data``,
+      ! e.g., ``jina_reaclib_results_20130213default2``
+      ! (which is an 18.8 MB file of rates data).
+      ! To use previous version, set to ``jina_reaclib_results_v2.2``.
+
+      ! If you change reaclib version, you should clear the cache
+      ! after making the change in order to ensure that cached
+      ! rates from the default reaclib version are not being
+      ! read. (You can use the script ``empty_caches`` in
+      ! ``$MESA_DIR``.)
+
+      ! In order to avoid this caching issue, one can also specify
+      ! a local rates cache directory via the control
+      ! ``rates_cache_dir``.
+
+      ! ::
+
+    jina_reaclib_filename = ''
+
+
+      ! jina_reaclib_min_T9
+      ! ~~~~~~~~~~~~~~~~~~~
+
+      ! set jina reaclib rates to zero for T9 <= this.
+      ! if this control is <= 0, then use the standard default from rates.
+      ! need <= 3d-3 for pre-ms li7 burning
+      ! if change this, must remove old cached rates from data/rates_data/cache
+
+      ! ::
+
+    jina_reaclib_min_T9 = -1
+
+
+      ! rate_tables_dir
+      ! ~~~~~~~~~~~~~~~
+
+      ! When MESA looks for the files ``rate_list.txt`` and ``weak_rate_list.txt``,
+      ! it will look in a local directory with this name first.
+      ! If doesn't find one, it will use the one in ``data/rates_data/rate_tables``.
+
+      ! ::
+
+    rate_tables_dir = 'rate_tables'
+
+
+      ! rate_cache_suffix
+      ! ~~~~~~~~~~~~~~~~~
+
+      ! If this not empty, then use it when creating names
+      ! for cache files for reaction rates from ``rate_tables_dir``.
+      ! If empty, the suffix will be '0'.
+
+      ! ::
+
+    rate_cache_suffix = '0'
+
+
+      ! T9_weaklib_full_off
+      ! ~~~~~~~~~~~~~~~~~~~
+      ! T9_weaklib_full_on
+      ! ~~~~~~~~~~~~~~~~~~
+
+      ! Weak rates blend weaklib and reaclib according to temperature.
+      ! These can be used to overwrite the defaults in ``mesa/rates/public/rates_def``
+
+      ! + ``T9_weaklib_full_off`` : use pure reaclib for T <= this (ignore if <= 0)
+      ! + ``T9_weaklib_full_on`` : use pure weaklib for T >= this (ignore if <= 0)
+
+      ! ::
+
+    T9_weaklib_full_off = 0.01d0
+    T9_weaklib_full_on = 0.02d0
+
+
+      ! weaklib_blend_hi_Z
+      ! ~~~~~~~~~~~~~~~~~~
+
+      ! Ignore if <= 0.
+      ! Blend for intermediate temperatures.
+      ! For high Z elements, switch to reaclib at temp where no longer fully ionized.
+      ! As rough approximation for this, we switch at Fe to higher values of T9.
+
+      ! ::
+
+    weaklib_blend_hi_Z = 26
+
+
+      ! T9_weaklib_full_off_hi_Z
+      ! ~~~~~~~~~~~~~~~~~~~~~~~~
+      ! T9_weaklib_full_on_hi_Z
+      ! ~~~~~~~~~~~~~~~~~~~~~~~
+
+      ! If input element has Z >= ``weaklib_blend_hi_Z``, then use the following T9 limits:
+
+      ! + ``T9_weaklib_full_off_hi_Z`` : use pure reaclib for T <= this (ignore if <= 0)
+      ! + ``T9_weaklib_full_on_hi_Z`` : use pure weaklib for T >= this (ignore if <= 0)
+
+      ! ::
+
+    T9_weaklib_full_off_hi_Z = 0.063d0
+    T9_weaklib_full_on_hi_Z = 0.073d0
+
+   ! controls for other weak rate sources
+   ! ____________________________________
+
+
+      ! use_suzuki_weak_rates
+      ! ~~~~~~~~~~~~~~~~~~~~~
+
+      ! If this is true, use the A=17-28 weak reaction rates from
+
+      !     Suzuki, Toki, and Nomoto (2016)
+      !     Electron-capture and $\beta$-decay rates for sd-shell nuclei in stellar environments relevant to high-density O-Ne-Mg cores
+      !     http://adsabs.harvard.edu/abs/2016ApJ...817..163S
+
+      ! If you make use of these rates, please cite the above paper.
+
+      ! ::
+
+    use_suzuki_weak_rates = .false.
+
+
+      ! use_special_weak_rates
+      ! ~~~~~~~~~~~~~~~~~~~~~~
+
+      ! If this is true, calculate special weak rates using the
+      ! approach described in Section 8 of Paxton et al. (2015).
+
+      ! ::
+
+    use_special_weak_rates = .false.
+
+
+      ! special_weak_states_file
+      ! ~~~~~~~~~~~~~~~~~~~~~~~~
+
+      ! File specifying which states to include
+
+      ! Provide the low-lying energy levels of a given nucleus.
+      ! These are needed to calculate the partition function
+      ! and to indicate which states have allowed transitions.
+      ! Each isotope should have an entry of the form
+
+      ! ::
+
+      !     <name> <nlevels>
+      !     <E_1> <J_1>
+      !     ...
+      !     <E_n> <J_n>
+
+      ! where E = energy, J = spin.
+
+      ! ::
+
+    special_weak_states_file = 'special_weak_rates.states'
+
+
+      ! special_weak_transitions_file
+      ! ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+      ! File specifying to include
+
+      ! These are the transitions for electron capture / beta decay
+      ! reactions that should be used.
+
+      ! Each reaction should have and entry of the form
+
+      ! ::
+
+      !     <iso1> <iso2> <ntrans>
+      !     <si_1> <sf_1> <logft_1>
+      !     ...
+      !     <si_n> <sf_n> <logft_n>
+
+      ! where si / sf are the n-th parent / daughter state, counting
+      ! in the order that you specified in the states file.  logft is
+      ! the comparative half-life of that transition.
+
+      ! ::
+
+    special_weak_transitions_file = 'special_weak_rates.transitions'
+
+
+      ! ion_coulomb_corrections
+      ! ~~~~~~~~~~~~~~~~~~~~~~~
+
+      ! select which expression for the ion chemical potential to use
+      ! to calculate the energy shift associated with changing ion charge
+
+      ! + 'none': no corrections
+      ! + 'DGC1973': Dewitt, Graboske, & Cooper, M. S. 1973, ApJ, 181, 439
+      ! + 'I1993': Ichimaru, 1993, Reviews of Modern Physics, 65, 255
+      ! + 'PCR2009': Potekhin, Chabrier, & Rogers, 2009, Phys. Rev. E, 79, 016411
+
+      ! ::
+
+    ion_coulomb_corrections = 'none'
+
+
+      ! electron_coulomb_corrections
+      ! ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+      ! select which expression to use to calculate the shift in the
+      ! electron chemical potential at the location of the nucleus
+
+      ! + 'none': no corrections
+      ! + 'ThomasFermi': Thomas-Fermi theory
+      ! + 'Itoh2002': Itoh et al., 2002, ApJ, 579, 380
+
+      ! ::
+
+    electron_coulomb_corrections = 'none'
+
+
+      ! net_logTcut_lo
+      ! ~~~~~~~~~~~~~~
+
+      ! strong rates are zero ``logT < logTcut_lo``
+      ! use default from net if this is <= 0
+
+      ! ::
+
+    net_logTcut_lo = -1
+
+
+      ! net_logTcut_lim
+      ! ~~~~~~~~~~~~~~~
+
+      ! strong rates cutoff smoothly for ``logT < logTcut_lim``
+      ! use default from net if this is <= 0
+
+      ! ::
+
+    net_logTcut_lim = -1
+
+      ! max_logT_for_net
+      ! ~~~~~~~~~~~~~~~~
+
+      ! ::
+
+    max_logT_for_net = 10.2d0
+
+
+      ! screening_mode
+      ! ~~~~~~~~~~~~~~
+
+      ! + empty string means no screening
+      ! + ``' extended'`` :
+      !   extends the Graboske (1973) method using results from Alastuey and Jancovici (1978),
+      !   along with plasma parameters from Itoh et al (1979) for strong screening.
+      ! + ``'salpeter'`` :
+      !   weak screening only.  following Salpeter (1954),
+      !   with equations (4-215) and (4-221) of Clayton (1968).
+      ! + ``'chugunov'`` :
+      !   based on code from Sam Jones
+      !   Implements screening from Chugunov et al (2007) for weak and strong screening
+      !   MESA versions <=11435 used extended as the default value
+
+      ! ::
+
+    screening_mode = 'chugunov'
+
+      ! fe56ec_fake_factor
+      ! ~~~~~~~~~~~~~~~~~~
+      ! min_T_for_fe56ec_fake_factor
+      ! ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+      ! Multiplier on ni56 electron capture rate to take isotopes in hardwired networks
+      ! to more neutron rich isotopes.
+
+      ! ::
+
+    fe56ec_fake_factor = 1d-7
+    min_T_for_fe56ec_fake_factor = 3d9
+
+
+      ! warn_rates_for_high_temp
+      ! ~~~~~~~~~~~~~~~~~~~~~~~~
+
+      ! If true then when any zone tries to evaluate a rate above ``max_safe_logT_for_rates``
+      ! it generates a warning message. The code will  cap the rate at the value
+      ! for ``max_safe_logT_for_rates`` whether the warning is on or not.
+      ! 10d0 is a sensible default for the max temperature, as that is where the partition tables
+      ! and polynomial fits to the rates are valid until.
+      ! warning messages include the text "rates have been truncated" and "WARNING: evaluating rates".
+
+      ! ::
+
+    warn_rates_for_high_temp = .true.
+    max_safe_logT_for_rates = 10d0
+
+      ! weak_rate_factor
+      ! ~~~~~~~~~~~~~~~~
+
+      ! all weak rates are multiplied by this factor
+
+      ! ::
+
+    weak_rate_factor = 1
