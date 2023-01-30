@@ -1,4 +1,12 @@
 
 
+    ! File containing input data as: 
+    ! time/s log(T/K) log(rho/gcm^{-3}) composition
     input_filename = ''
+
+    ! Outputs:
+    !eps_nuc(erg/g/gs) eps_neu(erg/g/s) composition
     output_filename = ''
+
+    ! If true set composition as 1/species
+    uniform_composition = .false.

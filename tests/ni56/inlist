@@ -1,0 +1,40 @@
+&bbq
+
+    ! Physcis options
+    net_name = 'ni56.net'
+    screening_mode = 'chugunov'
+    weak_rate_factor = 1
+
+    ! Solver tolerances
+    max_steps = 1000000
+    eps = 1d-8
+    odescal = 1d-10
+    stptry = 0
+
+
+    ! What mode to run
+    use_input_file = .true.
+
+    
+    write_iso_list = .true.
+    iso_list_filename = 'iso.txt'
+
+/
+
+
+&sampling ! For both use_input_file and use_random_sampling
+
+    input_filename = 'input.txt'
+    output_filename = 'output.txt'
+
+/
+
+
+&profile ! For use_profile
+
+/
+
+
+&eos
+
+/

@@ -1,23 +1,35 @@
 
 
 
-    output_starting_filename = '' 
-    output_ending_filename = ''
+      ! Where to output starting points for the sample
+      ! time/s log(T/K) log(rho/gcm^{-3}) composition
+      output_starting_filename =''
 
-    num_samples = -1 ! Negative means unlimited
+      ! Where to output final composition of step
+      !eps_nuc(erg/g/gs) eps_neu(erg/g/s) composition
+      output_ending_filename =''
 
-    log_time_min = -12 ! log integration time in s
-    log_time_max = 0
+      ! How many samples to draw, negative means unlimited
+      num_samples = 1
 
-    log_temp_min = 8 ! log Temperature in K
-    log_temp_max = 10
+      ! Min and Max values for the log(time/s) to integrate for
+      log_time_min  = 0
+      log_time_max  = 1
 
-    log_rho_min = 0 ! log density in g/cm^-3
-    log_rho_max = 10
+      ! Min and Max values for the log(T/Ks) temperature
+      log_temp_min = 0
+      log_temp_max = 1
 
-    log_xa_min = -30 ! log abundance
-    log_xa_max = 0
+      ! Min and Max values for the log(rho/gcm^{-3}) density
+      log_rho_min = 0
+      log_rho_max = 1
 
-    neut_prot_limit_frac = 0.05 ! Limit abundance of free neut's/prots
+      ! Min and Max values for the log(Xa) abundance
+      log_xa_min =0
+      log_xa_max =1
 
-    seed = 42 ! If negative use a different one each time
+      ! Place a limit on the abundance of free neutrons and protons
+      neut_prot_limit_frac = 0.05 
+
+      ! Random seed, if negative use a different one each time 
+      seed = 42 

@@ -19,8 +19,6 @@ module ctrls
 
          integer, pointer :: reaction_id(:)
          integer, dimension(:), pointer :: net_iso =>null(), chem_id =>null()
-
-         real(dp), pointer :: burn_work_array(:) =>null(), net_work_array(:) =>null()
                   
          real(dp), pointer :: ending_x(:) =>null() ! (species)
          integer :: nfcn    ! number of function evaluations
@@ -33,7 +31,6 @@ module ctrls
             rate_raw =>null(), rate_raw_dT =>null(), rate_raw_dRho =>null(), &
             rate_screened =>null(), rate_screened_dT =>null(), rate_screened_dRho =>null()
 
-         integer :: burn_lwork, net_lwork
          integer :: screening_opt
 
          integer :: neut_id, prot_id

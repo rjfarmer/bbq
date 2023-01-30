@@ -17,9 +17,10 @@ module sampler_lib
       type(inputs_t) :: in
       type(outputs_t) :: out 
 
-      character(len=strlen) :: line
+      character(len=512) :: tmp
+      character(len=:),allocatable :: line
       real(dp),pointer :: vec(:) =>null()
-      integer :: species, n, fout
+      integer :: species, n, fout,line_len, sz
 
       call load_sampling_inputs(bbq_in% inlist, sample_in, ierr)
 
@@ -33,6 +34,19 @@ module sampler_lib
 
       species = bbq_in% state% species 
       allocate(in% xa(species),vec(3+species))
+
+
+      ! Probe the length of the data lines
+      line_len =0 
+      do
+         read(finput,'(A)',iostat=iostat,size=sz,advance='no') tmp
+         line_len = line_len+sz
+         if(IS_IOSTAT_END(iostat) .or.IS_IOSTAT_EOR(iostat)) exit
+      end do
+      rewind(finput)
+      ! Add buffer padding in case some lines change length
+      allocate(character(len=line_len*2) :: line)
+
 
       do 
          in% xa = 0d0

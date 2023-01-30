@@ -1,8 +1,19 @@
 
 
-    input_filename = ''
-    input_composition_filename = ''
-    output_filename = ''
+    ! Input file with
+    ! time/s log(T/K) log(rho/gcm^{-3})
+    input_filename =''
 
+    ! Input file the abundances in net_iso order (one iso per line)
+    input_composition_filename =''
+
+    ! Outputs
+    ! total_time(s) dt(s) log(T/K) log(rho/gcm^{-3})
+    output_filename =''
+
+    ! After processing the data in input_filename, this deciedes what we do next,
+    ! if this is false we just stop
+    ! if this is true we will repeat the thermodynamic trajectory but in reverse order and do this num_loops number of times.
+    ! This can be thought of if a packet of material was being burnt while being covectively mixed and we wish to follow the flow as it rises and falls multiple times.
     reflective_boundaries=.true.
     num_loops = 1

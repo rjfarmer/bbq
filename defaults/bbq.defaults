@@ -1,24 +1,29 @@
 
 
-   ! Physcis options
-   net_name = 'approx21.net'
-   screening_mode = 'chugunov'
-   weak_rate_factor = 1
+      ! Nuclear network in MESA format. If path is not fully specified then we look in $MESA_DIR/data/net_data/nets
+      net_name = 'approx21.net'
 
-   ! What mode to run, must pick one
-   use_input_file = .false. ! Simply read from file and output burn data
-   use_random_sampling =.false. ! Randomly sample inputs
-   use_profile=.false. ! Read a profile of (T,Rho) and burn material
-   just_write_isos=.false.
+      ! Screening mode
+      screening_mode = 'chugunov'
+
+      ! Scale factor for weak reactions
+      weak_rate_factor = 1
+
+      ! Solver tolerances
+      max_steps = 1000000
+      eps = 1d-8
+      odescal = 1d-10
+      stptry = 0
 
 
-   write_iso_list = .false.
-   iso_list_filename = 'isos.txt'
+      ! What mode to run, must pick one
+      use_input_file = .false. ! Simply read from file and output burn data
+      use_random_sampling =.false. ! Randomly sample inputs
+      use_profile=.false. ! Read a profile of (T,Rho) and follow the thermodynamic trajectory
 
+      ! Only outputs the list of isotopes then stop
+      just_write_isos=.false.
 
-
-   ! Solver tolerances
-   max_steps = 1000000
-   eps = 1d-8
-   odescal = 1d-10
-   stptry = 0
+      ! whether to output the list of isotopes in net_iso order
+      write_iso_list = .false.
+      iso_list_filename = 'isos.txt'

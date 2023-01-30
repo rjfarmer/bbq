@@ -215,14 +215,6 @@ module bbq_lib
          return
       end if
 
-      s% burn_lwork = net_1_zone_burn_work_size(s% net_handle, ierr)
-      if (ierr /= 0) return
-      s% net_lwork = net_work_size(s% net_handle, ierr)
-      if (ierr /= 0) return
-      allocate(s% net_work_array(s% net_lwork), &
-               s% burn_work_array(s% burn_lwork))
-
-
       s% neut_id = -1
       s% prot_id = -1
       do j=1,s% species
@@ -312,8 +304,6 @@ module bbq_lib
          bbq_in% state% screening_opt,  & 
          bbq_in% stptry, bbq_in% max_steps, bbq_in% eps, bbq_in% odescal, &
          .true., .false., burn_dbg, burn_finish_substep, &
-         bbq_in% state% burn_lwork, bbq_in% state% burn_work_array, & 
-         bbq_in% state% net_lwork, bbq_in% state% net_work_array, & 
          bbq_in% state% ending_x, out% eps_nuc_categories, &
          avg_eps_nuc, out% eps_neu, &
          bbq_in% state% nfcn, bbq_in% state% njac, bbq_in% state% nstep, &
