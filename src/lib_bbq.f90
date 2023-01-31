@@ -365,6 +365,16 @@ module bbq_lib
       real(dp), dimension(:,:), pointer :: &
           log10Ts_f =>null(), log10Rhos_f =>null(), etas_f =>null(), log10Ps_f =>null()
 
+      ! Validate inputs
+      if(in% time < 0) then
+         write(*,*) "Got a negative timestep ",in% time
+         stop 1
+      end if
+
+      if(in% logT > 11) then
+         write(*,*) "Temperature is too high for MESA's physics ",in% logT
+         stop 1
+      end if
 
       nuc => bbq_in% nuclear
 
