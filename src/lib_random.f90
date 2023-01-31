@@ -6,7 +6,8 @@ module random_lib
 
    implicit none
 
-
+   private
+   public :: run_random
 
    contains
 

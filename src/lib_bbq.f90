@@ -19,6 +19,10 @@ module bbq_lib
 
    implicit none
 
+   private
+   public :: inputs_t,outputs_t
+   public :: net_setup, write_isos, write_iso_names, write_output, do_burn
+
 
    type inputs_t
       real(dp) :: time, logT, logRho

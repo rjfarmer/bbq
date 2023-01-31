@@ -5,6 +5,9 @@ module profile_lib
 
    implicit none
 
+   private
+   public :: run_profile
+
    contains
 
    subroutine run_profile(bbq_in)

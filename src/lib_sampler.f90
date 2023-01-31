@@ -2,13 +2,15 @@ module sampler_lib
    use bbq_lib
    use math_lib
    use iso_fortran_env
-
    use ctrls
+
    implicit none
 
+   private
+   public :: run_sampler_from_file
+
+
    contains
-
-
 
    subroutine run_sampler_from_file(bbq_in)
       type(bbq_t) :: bbq_in
