@@ -1,0 +1,20 @@
+{
+    "creators": [
+        {
+            "affiliation": "Max Planck Institute for Astrophysics",
+            "name": "Farmer, Robert",
+            "orcid": "0000-0003-3441-7624"
+        },
+    ],
+    "description": "BBQ is a one zone nuclear network solver",
+    "keywords": [
+        "astrophysics",
+        "nuclear astrophysics",
+        "stellar evolution"
+    ],
+    "license": {
+        "id": "LGPL-2.1"
+    },
+    "title" : "BBQ"
+}
+
