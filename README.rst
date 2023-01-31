@@ -31,6 +31,18 @@ This file can be moved outside of the
 source folder if wanted, it has no dependencies on the src folder.
 
 
+Documentation
+~~~~~~~~~~~~~
+
+Online documentation can be found here.
+
+To generate the documentation locally::
+
+    cd doc
+    pip install -r requirments.txt
+    make html
+
+
 Running
 -------
 
@@ -100,6 +112,6 @@ The ``nuclear`` inliust contains many of the nuclear related inlist options from
 Citing this work
 ----------------
 
-See the CITATIONS.bib file for a set of bibtex entries to cite. At a minimum you should cite this repository via the version used via `Zenodo <https://doi.org/10.5281/zenodo.7585201>`_ as well as 
-`Jermyn et al 2023 <https://ui.adsabs.harvard.edu/abs/2022arXiv220803651J/abstract>`_. You should also cite the source of the micro physics you use (reaction rates, screening, equation of state, etc).
+See the CITATIONS.bib file for a set of bibtex entries to cite. At a minimum you should cite this repository via via `Zenodo <https://doi.org/10.5281/zenodo.7585201>`_ with the version used, as well as 
+`Jermyn et al 2023 <https://ui.adsabs.harvard.edu/abs/2022arXiv220803651J/abstract>`_. You should also cite the source of the microphysics you use (reaction rates, screening, equation of state, etc).
 The `MESA CITATIONS.bib <https://github.com/MESAHub/mesa/blob/main/CITATIONS.bib>`_ file contains many of these references, but it is up to you to ensure they are correct. 
