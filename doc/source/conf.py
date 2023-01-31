@@ -55,3 +55,23 @@ html_theme = "sphinx_rtd_theme"
 html_static_path = []
 
 autodoc_mock_imports = []
+
+# standard substitutions
+rst_prolog = r"""
+.. |MESA I| replace:: `MESA I <https://ui.adsabs.harvard.edu/abs/2011ApJS..192....3P/abstract>`__
+.. |MESA II| replace:: `MESA II <https://ui.adsabs.harvard.edu/abs/2013ApJS..208....4P/abstract>`__
+.. |MESA III| replace:: `MESA III <https://ui.adsabs.harvard.edu/abs/2015ApJS..220...15P/abstract>`__
+.. |MESA IV| replace:: `MESA IV <https://ui.adsabs.harvard.edu/abs/2018ApJS..234...34P/abstract>`__
+.. |MESA V| replace:: `MESA V <https://ui.adsabs.harvard.edu/abs/2019ApJS..243...10P/abstract>`__
+.. |Msun| replace:: :math:`{\rm M}_\odot`
+.. |Lsun| replace:: :math:`{\rm L}_\odot`
+.. |Rsun| replace:: :math:`{\rm R}_\odot`
+.. |Teff| replace:: :math:`T_{\rm eff}`
+.. |logRho| replace:: :math:`\log(\rho/\rm g\,cm^{-3})`
+.. |logT| replace:: :math:`\log(T/\rm K)`
+.. |chi^2| replace:: :math:`\chi^2`
+.. |gpercm3| replace:: :math:`\rm g\,cm^{-3}`
+"""
+
+# set default highlighting language
+highlight_language = 'fortran'
