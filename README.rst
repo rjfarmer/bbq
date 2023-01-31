@@ -34,7 +34,7 @@ source folder if wanted, it has no dependencies on the src folder.
 Documentation
 ~~~~~~~~~~~~~
 
-Online documentation can be found here.
+Online documentation can be found `readthdocs <https://stellar-bbq.readthedocs.io/en/latest/>`_.
 
 To generate the documentation locally::
 
