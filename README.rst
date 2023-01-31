@@ -1,5 +1,9 @@
 .. image:: https://zenodo.org/badge/DOI/10.5281/zenodo.7585202.svg
    :target: https://doi.org/10.5281/zenodo.7585202
+.. image:: https://readthedocs.org/projects/stellar-bbq/badge/?version=latest
+    :target: https://stellar-bbq.readthedocs.io/en/latest/?badge=latest
+    :alt: Documentation Status
+
 
 BBQ
 ===
