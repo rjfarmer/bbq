@@ -1,0 +1,6 @@
+#!/bin/bash
+
+if ! ../../bbq inlist;then
+    exit 1
+fi
+./ck

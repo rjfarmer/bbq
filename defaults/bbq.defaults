@@ -14,6 +14,7 @@
       use_input_file = .false. ! Simply read from file and output burn data
       use_random_sampling =.false. ! Randomly sample inputs
       use_profile=.false. ! Read a profile of (T,Rho) and follow the thermodynamic trajectory
+      use_hydrostatic=.false. ! Burn at constant (T,Rho) for a given set of timesteps
 
       ! Only outputs the list of isotopes then stop
       just_write_isos=.false.

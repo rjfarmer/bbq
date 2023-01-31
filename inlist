@@ -19,6 +19,10 @@
 
 /
 
+&hydrostatic ! For use with use_hydrostatic
+
+/
+
 
 &eos
 
@@ -32,3 +36,5 @@
 &nuclear
 
 /
+
+

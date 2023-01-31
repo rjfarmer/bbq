@@ -88,6 +88,11 @@ Profile
 Here we read one set of initial compositions and then follow that material as it moves along the thermodyanmic trajectory given by the input file.
 Inputs are given by the ``profile`` inlist.
 
+Hydrostatic
+~~~~~~~~~~~
+
+Similar to profile except we maintain a constant T/Rho during the burn.
+
 
 Other inlists
 -------------

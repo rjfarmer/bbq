@@ -4,6 +4,7 @@ program main
    use sampler_lib
    use profile_lib
    use random_lib
+   use hydrostatic_lib
    use ctrls
 
 
@@ -24,6 +25,8 @@ program main
       call run_random(bbq_in)
    else if (bbq_in% use_profile) then
       call run_profile(bbq_in)
+   else if (bbq_in% use_hydrostatic) then
+      call run_hydrostatic(bbq_in)
    else
       write(*,*) "Must select one mode to run in"
       call mesa_error(__FILE__,__LINE__)

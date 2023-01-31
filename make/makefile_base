@@ -17,7 +17,7 @@ include $(MESA_DIR)/utils/makefile_header
 # SOURCES
 
 COMMON_SRCS = \
-    ctrls.f90 lib_bbq.f90 lib_sampler.f90 lib_profile.f90 lib_random.f90 main.f90
+    ctrls.f90 lib_bbq.f90 lib_sampler.f90 lib_profile.f90 lib_random.f90 lib_hydrostatic.f90 main.f90
 
 ONE_ZONE_SRCS = $(COMMON_SRCS) 
 

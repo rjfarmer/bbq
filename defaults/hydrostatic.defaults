@@ -1,0 +1,28 @@
+
+! If true read the times to sample at from a file
+times_from_file = .false.
+
+! else we sample linearly between (s or log(s))
+min_time = 0
+max_time = 0
+
+! This many times
+num_times = -1
+
+! If times are in log then set this to true
+log_time = .false.
+
+! constant temperature log (T/k) to burn at
+logT = 0
+
+! constant density log (rho/g/cm^3) to burn at
+logRho = 0
+
+! If times_from_file = .true. then read times for this file
+input_filename= ''
+
+! Output data to this file
+output_filename = ''
+
+! Starting composition from this file
+input_composition_filename = ''

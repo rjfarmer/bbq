@@ -39,6 +39,10 @@ module ctrls
       include 'private/sample.inc'
    end type sample_t
 
+   type hydrostatic_t
+      include 'private/hydrostatic.inc'
+   end type hydrostatic_t
+
 
    contains
 
@@ -54,7 +58,8 @@ module ctrls
       namelist /bbq/ net_name, &
                      eps, odescal, stptry, max_steps, &
                      use_input_file, use_random_sampling, use_profile,&
-                     iso_list_filename, just_write_isos, write_iso_list
+                     iso_list_filename, just_write_isos, write_iso_list,&
+                     use_hydrostatic
 
       include '../defaults/bbq.defaults'
 
@@ -74,6 +79,7 @@ module ctrls
       options% use_profile = use_profile
       options% just_write_isos = just_write_isos
       options% write_iso_list = write_iso_list
+      options% use_hydrostatic = use_hydrostatic
 
    end subroutine load_bbq_inputs
 
@@ -254,6 +260,41 @@ module ctrls
 
    end subroutine load_nuclear_inputs
 
+
+   subroutine load_hydrostatic_inputs(inlist, options, ierr)
+      character(len=*), intent(in) :: inlist
+      type(hydrostatic_t), intent(inout) :: options
+      integer, intent(out) :: ierr
+      integer :: unit
+
+      include 'private/hydrostatic.inc'
+   
+      namelist /hydrostatic/ input_filename, output_filename, input_composition_filename,&
+                              times_from_file, log_time,&
+                              num_times,&
+                              min_time, max_time,&
+                              logT, logRho
+
+
+      include '../defaults/hydrostatic.defaults'
+
+      open(newunit=unit,file=inlist,status='old',action='read')
+      read(unit,nml=hydrostatic)
+      close(unit)
+
+
+      options% input_filename = input_filename
+      options% output_filename = output_filename
+      options% input_composition_filename = input_composition_filename
+      options% times_from_file = times_from_file
+      options% log_time = log_time
+      options% num_times = num_times
+      options% min_time = min_time
+      options% max_time = max_time
+      options% logT = logT
+      options% logRho = logRho
+
+   end subroutine load_hydrostatic_inputs
 
 
 end module ctrls
