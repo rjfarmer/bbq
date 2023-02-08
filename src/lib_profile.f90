@@ -16,7 +16,7 @@ module profile_lib
       type(inputs_t),allocatable :: in(:)
       type(outputs_t) :: out
 
-      integer :: i,j, ierr, fout, fcomp, num_lines
+      integer :: i,j, ierr, fout, fcomp, num_lines, start
       character(len=8) :: fmt
       character(len=256) :: filename
       real(dp) :: total_time
@@ -35,7 +35,22 @@ module profile_lib
       ! Add initial line
       call output_profile(fout, total_time, in(1), out)
 
-      do i=1,profile_in% num_loops
+      start = 1
+      if(profile_in% restart_from>=1)  then
+         start = profile_in% restart_from+1
+
+         write(fmt,'(I0)') profile_in% restart_from
+         filename = 'comp_'//trim(fmt)//'.txt'
+         open(newunit=fcomp,file=filename,status='old',action="read")
+
+         do j=1,size(in(1)% xa)
+               read(fcomp,*) out% xa(j)
+         end do
+
+      end if
+
+
+      do i=start,profile_in% num_loops
          do j=1,num_lines
             in(j)% xa = out% xa
             call do_profile_burn(in(j), out, bbq_in, total_time, fout, ierr )

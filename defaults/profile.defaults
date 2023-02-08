@@ -17,3 +17,10 @@
     ! This can be thought of if a packet of material was being burnt while being covectively mixed and we wish to follow the flow as it rises and falls multiple times.
     reflective_boundaries=.true.
     num_loops = 1
+
+
+    ! If >=1 then we reload from the file comp_${restart_from}.txt
+    ! and conitnue onwards. Thus providing a basi restart capability
+    ! The loop will then continue from restart_from+1
+
+    restart_from = -1

@@ -1,0 +1,13 @@
+#!/bin/bash
+
+if ! ../../bbq inlist;then
+    exit 1
+fi
+
+mv comp_5.txt comp_5.txt.restart
+
+if ! ../../bbq inlist_restart;then
+    exit 1
+fi
+
+./ck

@@ -1,0 +1,3 @@
+#!/bin/bash
+
+diff comp_5.txt comp_5.txt.restart

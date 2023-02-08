@@ -1,0 +1,50 @@
+&bbq
+
+    ! Physcis options
+    net_name = 'approx21.net'
+
+    ! Solver tolerances
+    max_steps = 1000000
+    eps = 1d-8
+    odescal = 1d-10
+    stptry = 0
+
+
+    ! What mode to run
+    use_profile=.true. ! Read a profile of (T,Rho) and burn material
+
+    
+    write_iso_list = .true.
+    iso_list_filename = 'iso.list'
+
+/
+
+
+&sampling ! For both use_input_file and use_random_sampling
+
+/
+
+
+&profile ! For use_profile
+
+    input_filename = 'input.txt'
+    input_composition_filename = 'comp.txt'
+    output_filename = 'output.txt'
+
+    write_comp_every_loop = .true.
+
+    reflective_boundaries=.true.
+    num_loops = 5
+
+    restart_from = 3
+
+/
+
+
+&eos
+
+/
+
+&nuclear
+
+/

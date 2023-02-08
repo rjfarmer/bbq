@@ -93,7 +93,7 @@ module ctrls
       include 'private/profile.inc'
 
       namelist /profile/ input_filename,output_filename, reflective_boundaries, num_loops,&
-                        input_composition_filename,write_comp_every_loop
+                        input_composition_filename,write_comp_every_loop, restart_from
 
 
       include '../defaults/profile.defaults'
@@ -109,6 +109,7 @@ module ctrls
       options% num_loops = num_loops
       options% input_composition_filename = input_composition_filename
       options% write_comp_every_loop = write_comp_every_loop
+      options% restart_from = restart_from
 
 
    end subroutine load_profile_inputs
