@@ -57,11 +57,12 @@ You can override this by providing a path to the inlist on the command line ``./
 Modes of operation
 ------------------
 
-There are currently three modes that can be ran, each mode has its own inlist options:
+There are currently four modes that can be ran, each mode has its own inlist options:
 
 * Sampling
 * Random Sampling
 * Profile
+* hydrostatic
 
 
 A note on inputs/outputs, the base units for all quantities are: temperatures in Kelvin, densities in g/cm^{-3}, time in seconds, and composition in abundances. 
@@ -91,7 +92,7 @@ Inputs are given by the ``profile`` inlist.
 Hydrostatic
 ~~~~~~~~~~~
 
-Similar to profile except we maintain a constant T/Rho during the burn.
+Similar to profile except we maintain a constant T/Rho during the burn. Inputs are given by the ``hydrostatic`` inlist.
 
 
 Other inlists
