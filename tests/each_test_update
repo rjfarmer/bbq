@@ -2,7 +2,7 @@
 
 failed=0
 
-for i in isos profile random sample big_net;
+for i in isos profile random sample ni56 hydrostatic profile_restart big_net;
 do
     cd "$i" || exit 1
     ./rn

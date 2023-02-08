@@ -6,7 +6,7 @@ RED='\033[0;31m'
 GREEN='\033[0;32m'
 NC='\033[0m'
 
-for i in isos profile random sample ni56 hydrostatic big_net;
+for i in isos profile random sample ni56 hydrostatic profile_restart big_net;
 do
     cd "$i" || exit 1
     if ./test 2>&1 >/dev/null; then
