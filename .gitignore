@@ -6,3 +6,4 @@ bbq
 .vscode
 fort.*
 comp_*.txt
+.mesa_temp_cache
