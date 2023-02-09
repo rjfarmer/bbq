@@ -11,13 +11,6 @@ integer, pointer :: net_reaction_ptr(:) =>null()
 integer, pointer :: reaction_id(:)
 integer, dimension(:), pointer :: net_iso =>null(), chem_id =>null()
          
-real(dp), pointer :: ending_x(:) =>null() ! (species)
-integer :: nfcn    ! number of function evaluations
-integer :: njac    ! number of jacobian evaluations
-integer :: nstep   ! number of computed steps
-integer :: naccpt  ! number of accepted steps
-integer :: nrejct  ! number of rejected steps
-
 real(dp), dimension(:), pointer :: &
    rate_raw =>null(), rate_raw_dT =>null(), rate_raw_dRho =>null(), &
    rate_screened =>null(), rate_screened_dT =>null(), rate_screened_dRho =>null()

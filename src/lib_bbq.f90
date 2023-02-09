@@ -33,6 +33,11 @@ module bbq_lib
       real(dp) :: eps_nuc, eps_neu
       real(dp) :: eps_nuc_categories(num_categories)
       real(dp), allocatable :: xa(:)
+      integer :: nfcn    ! number of function evaluations
+      integer :: njac    ! number of jacobian evaluations
+      integer :: nstep   ! number of computed steps
+      integer :: naccpt  ! number of accepted steps
+      integer :: nrejct  ! number of rejected steps
    end type outputs_t
 
    character (len=64),parameter :: cache_suffix ='0'
@@ -203,7 +208,6 @@ module bbq_lib
 
       allocate( &
          s% rate_factors(s% num_reactions),&
-         s% ending_x(s% species), &
          stat=ierr)
       if (ierr /= 0) then
          write(*,*) 'allocate failed for Do_One_Zone_Burn'
@@ -355,7 +359,7 @@ module bbq_lib
 
       logical,parameter :: burn_dbg=.false.
 
-      integer :: i,r
+      integer :: i,r, species
       integer,parameter :: num_times=1
 
       real(dp) :: res(num_eos_basic_results) ! (num_eos_basic_results)         
@@ -368,6 +372,7 @@ module bbq_lib
           log10Ts_f1 =>null(), log10Rhos_f1 =>null(), etas_f1 =>null(), log10Ps_f1 =>null()
       real(dp), dimension(:,:), pointer :: &
           log10Ts_f =>null(), log10Rhos_f =>null(), etas_f =>null(), log10Ps_f =>null()
+      real(dp), dimension(:), pointer :: ending_x=>null()
 
       ! Validate inputs
       if(in% time < 0) then
@@ -387,11 +392,13 @@ module bbq_lib
       logRho = in% logRho
       Rho = exp10(logRho)
       ierr = 0
+      species  = bbq_in% state% species
 
-      allocate(d_dxa(num_eos_basic_results,bbq_in% state% species))
+      
+      allocate(d_dxa(num_eos_basic_results,species))
       
       call eosDT_get( &
-         bbq_in% state% eos_handle, bbq_in% state% species, bbq_in% state% chem_id, bbq_in% state% net_iso, in% xa, &
+         bbq_in% state% eos_handle, species, bbq_in% state% chem_id, bbq_in% state% net_iso, in% xa, &
          Rho, logRho, T, logT, &
          res, d_dlnd, d_dlnT, d_dxa, ierr)
 
@@ -404,6 +411,7 @@ module bbq_lib
          times(num_times), &
          log10Ts_f1(4*num_times), log10Rhos_f1(4*num_times), &
          etas_f1(4*num_times), log10Ps_f1(4*num_times), &
+         ending_x(species),&
          stat=ierr)
       if (ierr /= 0) then
          write(*,*) 'allocate failed for Do_One_Zone_Burn'
@@ -425,8 +433,6 @@ module bbq_lib
                
       dxdt_source_term => null()
 
-      bbq_in% state% ending_x = 0d0
-
       call net_1_zone_burn( &
          bbq_in% state% net_handle, bbq_in% state% eos_handle, bbq_in% state% species, &
          bbq_in% state% num_reactions, 0d0, times(1), in% xa, &
@@ -436,13 +442,16 @@ module bbq_lib
          nuc% screening_opt,  & 
          bbq_in% stptry, bbq_in% max_steps, bbq_in% eps, bbq_in% odescal, &
          .true., .false., burn_dbg, burn_finish_substep, &
-         bbq_in% state% ending_x, out% eps_nuc_categories, &
+         ending_x, out% eps_nuc_categories, &
          avg_eps_nuc, out% eps_neu, &
-         bbq_in% state% nfcn, bbq_in% state% njac, bbq_in% state% nstep, &
-         bbq_in% state% naccpt, bbq_in% state% nrejct, ierr)
+         out% nfcn, out% njac, out% nstep, &
+         out% naccpt, out% nrejct, ierr)
 
       out% eps_nuc = avg_eps_nuc * in% time
-      out% xa = bbq_in% state% ending_x
+      out% xa = ending_x
+
+      deallocate(times,log10Ts_f1, log10Rhos_f1,etas_f1, log10Ps_f1, &
+               ending_x)
 
       contains
    
