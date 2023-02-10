@@ -15,4 +15,4 @@ Welcome to BBQ's documentation!
    test_suite
    developing
    parallelization
-
+   Embedding
