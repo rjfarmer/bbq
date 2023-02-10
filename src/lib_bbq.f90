@@ -447,6 +447,8 @@ module bbq_lib
          out% nfcn, out% njac, out% nstep, &
          out% naccpt, out% nrejct, ierr)
 
+      if(out% nstep >= bbq_in% max_steps) ierr = -1
+
       out% eps_nuc = avg_eps_nuc * in% time
       out% xa = ending_x
 
