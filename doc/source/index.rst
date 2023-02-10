@@ -13,6 +13,6 @@ Welcome to BBQ's documentation!
    installation
    running
    test_suite
+   embedding
    developing
    parallelization
-   Embedding
