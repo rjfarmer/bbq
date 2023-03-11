@@ -46,9 +46,9 @@ module random_lib
 
 
       do 
-         in% id = total
          if(random_in% num_samples>0 .and. total>= random_in% num_samples) exit
          total = total+1
+         in% id = total
 
          r = get_dp_uniform_01(seed_val)
          in% time = exp10(flat_r(random_in% log_time_min,random_in% log_time_max,r))

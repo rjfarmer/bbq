@@ -51,8 +51,8 @@ module sampler_lib
 
       total = 0
       do 
-         in% id = total
          total = total+1
+         in% id = total
 
          in% xa = 0d0
          ! Read data
