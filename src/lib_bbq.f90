@@ -25,6 +25,7 @@ module bbq_lib
 
 
    type inputs_t
+      integer :: id
       real(dp) :: time, logT, logRho
       real(dp), allocatable :: xa(:)
    end type inputs_t
@@ -493,12 +494,13 @@ module bbq_lib
    end subroutine write_iso_names
 
 
-   subroutine write_output(out, fout)
+   subroutine write_output(in, out, fout)
+      type(inputs_t) :: in
       type(outputs_t) :: out
       integer :: fout,j
 
 
-      write(fout,'(2(1pe26.16,1X))', ROUND='COMPATIBLE',ADVANCE='no') out% eps_nuc, out% eps_neu
+      write(fout,'(I0,1X,2(1pe26.16,1X))', ROUND='COMPATIBLE',ADVANCE='no') in% id, out% eps_nuc, out% eps_neu
 
       do j=1, size(out% xa)
          write(fout,'(1pe26.16,1X)', ROUND='COMPATIBLE',ADVANCE='no') out% xa(j)

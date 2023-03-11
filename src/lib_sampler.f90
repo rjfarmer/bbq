@@ -22,7 +22,7 @@ module sampler_lib
       character(len=512) :: tmp
       character(len=:),allocatable :: line
       real(dp),pointer :: vec(:) =>null()
-      integer :: species, n, fout,line_len, sz
+      integer :: species, n, fout,line_len, sz, total
 
       call load_sampling_inputs(bbq_in% inlist, sample_in, ierr)
 
@@ -49,8 +49,11 @@ module sampler_lib
       ! Add buffer padding in case some lines change length
       allocate(character(len=line_len*2) :: line)
 
-
+      total = 0
       do 
+         in% id = total
+         total = total+1
+
          in% xa = 0d0
          ! Read data
          read(finput,'(A)',iostat=iostat) line
@@ -81,7 +84,7 @@ module sampler_lib
 
       open(newunit=fout,file=sample_in% output_filename,status='replace',action='write')
 
-      write(fout,'(A)',advance='no') '# eps_nuc eps_neu '
+      write(fout,'(A)',advance='no') '# id eps_nuc eps_neu '
       call write_iso_names(bbq_in, fout)
       close(fout)
 
@@ -99,7 +102,7 @@ module sampler_lib
       call do_burn(in, out, bbq_in, ierr)
       if(ierr/=0) return
 
-      call write_output(out, fout)
+      call write_output(in, out, fout)
 
    end subroutine do_sampler_burn
 

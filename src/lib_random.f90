@@ -46,6 +46,7 @@ module random_lib
 
 
       do 
+         in% id = total
          if(random_in% num_samples>0 .and. total> random_in% num_samples) exit
          total = total+1
 
@@ -112,12 +113,12 @@ module random_lib
       species = bbq_in% state% species
 
       !Write header
-      write(fout,'(A)',advance='no') '# eps_nuc eps_neu '
+      write(fout,'(A)',advance='no') '# id eps_nuc eps_neu '
       call write_iso_names(bbq_in, fout)
       close(fout)
 
       !Write header
-      write(fin,'(A)',advance='no') '# dt logt logrho '
+      write(fin,'(A)',advance='no') '# id dt logt logrho '
       call write_iso_names(bbq_in, fin)
       close(fin)
 
@@ -138,9 +139,9 @@ module random_lib
       call do_burn(in, out, bbq_in, ierr )
       if(ierr/=0) return
 
-      call write_output(out, fout)
+      call write_output(in, out, fout)
 
-      write(fin,'(3(1pe26.16,1X))', ROUND='COMPATIBLE',ADVANCE='no') in% time, in% logT, in% logRho
+      write(fin,'(I0,1X,3(1pe26.16,1X))', ROUND='COMPATIBLE',ADVANCE='no') in% id, in% time, in% logT, in% logRho
 
       do j=1, size(in% xa)
          write(fin,'(1pe26.16,1X)', ROUND='COMPATIBLE',ADVANCE='no') in% xa(j)

@@ -1,0 +1,5 @@
+#!/bin/bash
+
+./mk
+cd tests
+./each_test_run
