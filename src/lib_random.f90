@@ -47,7 +47,7 @@ module random_lib
 
       do 
          in% id = total
-         if(random_in% num_samples>0 .and. total> random_in% num_samples) exit
+         if(random_in% num_samples>0 .and. total>= random_in% num_samples) exit
          total = total+1
 
          r = get_dp_uniform_01(seed_val)
@@ -79,7 +79,7 @@ module random_lib
          if(ierr/=0) return
 
          if(random_in% sync_freq>0) then
-            if(mod(total,random_in% sync_freq)==0) then
+            if(mod(total, random_in% sync_freq)==0) then
                close(fin)
                close(fout)
 
