@@ -33,3 +33,6 @@
 
       ! Random seed, if negative use a different one each time 
       seed = 42 
+
+      ! Force a fle sync every this many steps if this is > 0
+      sync_freq = -1

@@ -77,6 +77,17 @@ module random_lib
          call do_random_burn(bbq_in, random_in, in, out, fin, fout, ierr)
          if(ierr/=0) return
 
+         if(random_in% sync_freq>0) then
+            if(mod(total,random_in% sync_freq)==0) then
+               close(fin)
+               close(fout)
+
+               open(newunit=fin,file=random_in% output_starting_filename,status='old', position="append", action="write")
+               open(newunit=fout,file=random_in% output_ending_filename,status='old', position="append", action="write")
+         
+            end if
+         end if
+
       end do
 
    end subroutine run_random
