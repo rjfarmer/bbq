@@ -146,6 +146,7 @@ module random_lib
       do j=1, size(in% xa)
          write(fin,'(1pe26.16,1X)', ROUND='COMPATIBLE',ADVANCE='no') in% xa(j)
       end do
+      write(fin,*)
 
 
    end subroutine do_random_burn
