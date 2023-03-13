@@ -5,3 +5,4 @@ real(dp) :: log_xa_min, log_xa_max
 real(dp) :: neut_prot_limit_frac
 character(len=strlen) :: output_starting_filename,output_ending_filename
 integer :: num_samples, seed, sync_freq
+logical :: restartable

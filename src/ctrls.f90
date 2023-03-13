@@ -127,7 +127,7 @@ module ctrls
                         log_rho_min,  log_rho_max, log_xa_min, log_xa_max, &
                         neut_prot_limit_frac, &
                         output_starting_filename, output_ending_filename,&
-                        num_samples, seed, sync_freq
+                        num_samples, seed, sync_freq, restartable
 
 
       include '../defaults/random.defaults'
@@ -151,6 +151,7 @@ module ctrls
       options% num_samples = num_samples
       options% seed = seed
       options% sync_freq = sync_freq
+      options% restartable = restartable
 
    end subroutine load_random_inputs
 

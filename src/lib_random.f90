@@ -20,7 +20,8 @@ module random_lib
 
       real(dp) :: r,sum
       integer :: total, ierr, n, species, j, fin, i
-      integer :: seed_val, fout
+      integer :: seed_val, fout, fseed, iostat
+      logical :: exists
 
       call load_random_inputs(bbq_in% inlist, random_in, ierr)
 
@@ -30,20 +31,31 @@ module random_lib
          call get_seed_for_random(seed_val)
       end if
 
-      ! Burn in random number generator
-      do i=1,10
-         r = get_dp_uniform_01(seed_val)
-      end do
+      total = 0
+
+      if(random_in% restartable) then
+         inquire(file=random_in% output_starting_filename,exist=exists)
+         if(exists) then
+            ! Count lines to adjust total
+            open(newunit=fin,file=random_in% output_starting_filename,status='old', action='read')
+            do 
+               read(fin,*,iostat=iostat) 
+               total=total+1
+               if(IS_IOSTAT_END(iostat)) exit
+            end do
+            close(fin)
+            total=total-2
+         end if
+      end if
+
 
       call random_setup(bbq_in, random_in)
          
-      total = 0
       species = bbq_in% state% species
       allocate(in% xa(species))
 
       open(newunit=fin,file=random_in% output_starting_filename,status='old', position="append", action="write")
       open(newunit=fout,file=random_in% output_ending_filename,status='old', position="append", action="write")
-
 
       do 
          if(random_in% num_samples>0 .and. total>= random_in% num_samples) exit
@@ -88,7 +100,6 @@ module random_lib
          
             end if
          end if
-
       end do
 
    end subroutine run_random
@@ -106,21 +117,26 @@ module random_lib
       type(random_t) :: random_in
       integer :: fin, fout
       integer :: fisos, species
+      logical :: exists
 
-      open(newunit=fin,file=random_in% output_starting_filename,status='replace',action='write')
-      open(newunit=fout,file=random_in% output_ending_filename,status='replace',action='write')
+      inquire(file=random_in% output_starting_filename,exist=exists)
 
-      species = bbq_in% state% species
+      if(.not. exists .or. .not. random_in% restartable) then
+         open(newunit=fin,file=random_in% output_starting_filename,status='replace',action='write')
+         open(newunit=fout,file=random_in% output_ending_filename,status='replace',action='write')
 
-      !Write header
-      write(fout,'(A)',advance='no') '# id eps_nuc eps_neu '
-      call write_iso_names(bbq_in, fout)
-      close(fout)
+         species = bbq_in% state% species
 
-      !Write header
-      write(fin,'(A)',advance='no') '# id dt logt logrho '
-      call write_iso_names(bbq_in, fin)
-      close(fin)
+         !Write header
+         write(fout,'(A)',advance='no') '# id eps_nuc eps_neu '
+         call write_iso_names(bbq_in, fout)
+         close(fout)
+
+         !Write header
+         write(fin,'(A)',advance='no') '# id dt logt logrho '
+         call write_iso_names(bbq_in, fin)
+         close(fin)
+      end if
 
 
    end subroutine random_setup

@@ -1,0 +1,68 @@
+&bbq
+
+    ! Physcis options
+    net_name = 'approx21.net'
+
+    ! Solver tolerances
+    max_steps = 1000000
+    eps = 1d-8
+    odescal = 1d-10
+    stptry = 0
+
+
+    ! What mode to run, must pick one
+    use_random_sampling =.true. ! Randomly sample inputs
+
+
+    write_iso_list = .false.
+    iso_list_filename = 'isos.txt'
+
+/
+
+
+&sampling ! For use_input_file
+
+/
+
+&random ! For use_random_sampling
+
+    output_starting_filename = 'start.txt' 
+    output_ending_filename = 'out.txt'
+
+    num_samples = 100 ! Negative means unlimited
+
+    log_time_min = -12 ! log integration time in s
+    log_time_max = 0
+
+    log_temp_min = 8 ! log Temperature in K
+    log_temp_max = 10
+
+    log_rho_min = 0 ! log density in g/cm^-3
+    log_rho_max = 10
+
+    log_xa_min = -30 ! log abundance
+    log_xa_max = 0
+
+    neut_prot_limit_frac = 0.05 ! Limit abundance of free neut's/prots
+
+    seed = 42
+
+    restartable=.true.
+
+/
+
+
+&profile ! For use_profile
+
+
+/
+
+
+&eos
+
+/
+
+
+&nuclear
+
+/

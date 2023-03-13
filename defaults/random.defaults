@@ -36,3 +36,8 @@
 
       ! Force a fle sync every this many steps if this is > 0
       sync_freq = -1
+
+      ! Whether the code should be restartable
+      ! If true and bbq detects the output files then we will append new rows to the output
+      ! instead of creating new files
+      restartable = .false.

@@ -1,0 +1,10 @@
+#!/bin/bash
+
+diff out.txt reference_out.txt
+
+diff start.txt reference_start.txt
+
+if [ "$(wc -l out.txt | awk '{print $1}')" -ne 201 ];then
+    echo "Bad number of lines"
+    exit 1
+fi

@@ -35,6 +35,7 @@ module hydrostatic_lib
 
       do j=1,num_lines
          in(j)% xa = out% xa
+        ! write(*,*) in(j)% xa
          call do_hydrostatic_burn(in(j), out, bbq_in, total_time, fout, ierr )
          if(ierr/=0) return
       end do

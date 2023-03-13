@@ -1,0 +1,11 @@
+#!/bin/bash
+
+if ! ../../bbq inlist1;then
+    exit 1
+fi
+
+if ! ../../bbq inlist2;then
+    exit 1
+fi
+
+./ck
