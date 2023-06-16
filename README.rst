@@ -24,7 +24,7 @@ Currently supported MESA versions:
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 * 22.11.01
-
+* 23.05.1
 
 Then run::
 
@@ -33,6 +33,9 @@ Then run::
 You will now have a executable called ``bbq`` which can be ran with ``./bbq`` to run the code. 
 This file can be moved outside of the 
 source folder if wanted, it has no dependencies on the src folder.
+
+Note that the test suite will likely only pass with the newest MESA version supported. This is due to changes in the reaction
+rates between MESA versions which mean the test suite output needs updating for each release.
 
 
 Documentation
@@ -65,10 +68,10 @@ There are currently four modes that can be ran, each mode has its own inlist opt
 * hydrostatic
 
 
-A note on inputs/outputs, the base units for all quantities are: temperatures in Kelvin, densities in g/cm^{-3}, time in seconds, and composition in abundances. 
+A note on inputs/outputs, the base units for all quantities are: temperatures in Kelvin, densities in g/cm^{-3}, time in seconds, and composition in mass fractions. 
 Some quantities may be in log10 when specified.
 
-The current set of default options can be found in the ``defaults/`` folder. Like MESA if you change anythin in the ``defaults`` folder you must recompile
+The current set of default options can be found in the ``defaults/`` folder. Like MESA if you change anything in the ``defaults`` folder you must recompile
 ``bbq`` for the changes to take effect.
 
 
@@ -103,13 +106,13 @@ Other inlists exist which specify the nuclear physics and EOS used.
 BBQ inlist
 ~~~~~~~~~~
 
-The ``bbq`` inlist is the main driver inlists and is where you set which mode to operate in as well as the nuclear network used.
+The ``bbq`` inlist is the main driver inlist and is where you set which mode to operate in as well as the nuclear network used.
 
 eos inlist
 ~~~~~~~~~~
 
 The ``eos`` inlist is the same as the MESA EOS inlist and can contain anything that inlist specifies. It is the only inlist that allows
-for nesting of other inlists. 
+for nesting of other inlists.
 See `MESA's eos options <https://docs.mesastar.org/en/release-r22.11.1/reference/eos.html>`_ for the full set of supported options.
 
 

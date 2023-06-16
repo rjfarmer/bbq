@@ -23,6 +23,7 @@ module bbq_lib
    public :: inputs_t,outputs_t
    public :: net_setup, write_isos, write_iso_names, write_output, do_burn
 
+   real(dp), parameter :: ABS_ERR=1d-4
 
    type inputs_t
       integer :: id
@@ -351,12 +352,13 @@ module bbq_lib
 
    subroutine do_burn(in, out, bbq_in,  ierr)
       type(inputs_t),intent(in) :: in
-      type(outputs_t),intent(out) :: out
+      type(outputs_t),intent(inout) :: out
       type(bbq_t),target :: bbq_in
       type(nuclear_t), pointer :: nuc=>null()
       integer, intent(out) :: ierr
       
-      real(dp) :: eta, logRho, logT, Rho, T, xsum, eps_nuc, d_eps_nuc_dRho, d_eps_nuc_dT, avg_eps_nuc
+      real(dp) :: eta, logRho, logT, Rho, T, xsum, eps_nuc, d_eps_nuc_dRho, d_eps_nuc_dT, avg_eps_nuc, &
+               eps_neu
 
       logical,parameter :: burn_dbg=.false.
 
@@ -444,14 +446,15 @@ module bbq_lib
          bbq_in% stptry, bbq_in% max_steps, bbq_in% eps, bbq_in% odescal, &
          .true., .false., burn_dbg, burn_finish_substep, &
          ending_x, out% eps_nuc_categories, &
-         avg_eps_nuc, out% eps_neu, &
+         avg_eps_nuc, eps_neu, &
          out% nfcn, out% njac, out% nstep, &
          out% naccpt, out% nrejct, ierr)
 
-      if(out% nstep >= bbq_in% max_steps) ierr = -1
-
       out% eps_nuc = avg_eps_nuc * in% time
       out% xa = ending_x
+      out% eps_neu = eps_neu
+
+      call check_output(in, out, bbq_in, ierr)
 
       deallocate(times,log10Ts_f1, log10Rhos_f1,etas_f1, log10Ps_f1, &
                ending_x)
@@ -468,6 +471,22 @@ module bbq_lib
          
    end subroutine do_burn
 
+   subroutine check_output(in, out, bbq_in, ierr)
+      type(inputs_t),intent(in) :: in
+      type(outputs_t),intent(inout) :: out
+      type(bbq_t),target :: bbq_in
+      integer, intent(inout) :: ierr
+
+      if(out% nstep >= bbq_in% max_steps) ierr = -1
+
+      if(abs(sum(out% xa) - 1.0) > ABS_ERR ) then
+         write(*,*) "Bad xa sum found", sum(out% xa),abs(sum(out% xa) - 1.0),ABS_ERR
+         ierr = -1
+      else
+         out% xa = out% xa/sum(out% xa)
+      end if
+
+   end subroutine check_output
 
    subroutine write_isos(bbq_in, filename)
       type(bbq_t) :: bbq_in
@@ -498,7 +517,6 @@ module bbq_lib
       type(inputs_t) :: in
       type(outputs_t) :: out
       integer :: fout,j
-
 
       write(fout,'(I0,1X,2(1pe26.16,1X))', ROUND='COMPATIBLE',ADVANCE='no') in% id, out% eps_nuc, out% eps_neu
 
