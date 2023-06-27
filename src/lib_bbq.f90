@@ -23,7 +23,7 @@ module bbq_lib
    public :: inputs_t,outputs_t
    public :: net_setup, write_isos, write_iso_names, write_output, do_burn
 
-   real(dp), parameter :: ABS_ERR=1d-4
+   real(dp), parameter :: ABS_ERR=1d-2 ! Mesa uses this
 
    type inputs_t
       integer :: id
