@@ -36,11 +36,13 @@ LOAD_OTHER = -L$(MESA_LIB_DIR) -lutils -leos -lrates -lchem -lnet $(LOAD_MESA_NU
 #################################################################
 #
 # TARGETS
+LIB = libbbq.$(LIB_SUFFIX)
+
 ONE_ZONE = $(TEST_DIR)/bbq
 
 ONE_ZONE_OBJS = $(patsubst %.f90,%.o,$(ONE_ZONE_SRCS))
 
-all : $(ONE_ZONE)
+all : $(ONE_ZONE) $(LIB)
 
 $(ONE_ZONE) : $(ONE_ZONE_OBJS) $(DEPS_LOCAL) $(DEPS_OTHER)
 
@@ -48,6 +50,11 @@ $(ONE_ZONE) : OBJS = $(ONE_ZONE_OBJS)
 
 $(TEST_DIR)/% :
 	$(LOADER) $(FCopenmp) -o $@ $(OBJS) $(LOAD_LOCAL) $(LOAD_OTHER) $(LD_FLAGS)
+
+$(LIB) : $(ONE_ZONE_OBJS) $(DEPS_OTHER)
+	$(LIB_TOOL) $(LIB) $(ONE_ZONE_OBJS) $(LOAD_OTHER)
+
+
 
 clean:
 	-@rm -f *.o *.mod *.smod .depend $(ONE_ZONE) 
