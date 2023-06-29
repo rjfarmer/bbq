@@ -84,7 +84,7 @@ module sampler_lib
 
       open(newunit=fout,file=sample_in% output_filename,status='replace',action='write')
 
-      write(fout,'(A)',advance='no') '# id eps_nuc eps_neu '
+      write(fout,'(A)',advance='no') 'id eps_nuc eps_neu '
       call write_iso_names(bbq_in, fout)
       close(fout)
 

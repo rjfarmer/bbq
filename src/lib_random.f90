@@ -128,12 +128,12 @@ module random_lib
          species = bbq_in% state% species
 
          !Write header
-         write(fout,'(A)',advance='no') '# id eps_nuc eps_neu '
+         write(fout,'(A)',advance='no') 'id eps_nuc eps_neu '
          call write_iso_names(bbq_in, fout)
          close(fout)
 
          !Write header
-         write(fin,'(A)',advance='no') '# id dt logt logrho '
+         write(fin,'(A)',advance='no') 'id dt logt logrho '
          call write_iso_names(bbq_in, fin)
          close(fin)
       end if

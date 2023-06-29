@@ -125,7 +125,7 @@ module profile_lib
 
       open(newunit=fout,file=profile_in% output_filename,status='replace',action='write')
 
-      write(fout,'(A)',advance='no') '# age dt logt logrho '
+      write(fout,'(A)',advance='no') 'age dt logt logrho '
 
       !Write header
       call write_iso_names(bbq_in, fout)

@@ -110,7 +110,7 @@ module hydrostatic_lib
 
       open(newunit=fout,file=hydrostatic_in% output_filename,status='replace',action='write')
 
-      write(fout,'(A)',advance='no') '# age dt '
+      write(fout,'(A)',advance='no') 'age dt '
 
       !Write header
       call write_iso_names(bbq_in, fout)
