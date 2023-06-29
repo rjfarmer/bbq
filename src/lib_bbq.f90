@@ -479,12 +479,7 @@ module bbq_lib
 
       if(out% nstep >= bbq_in% max_steps) ierr = -1
 
-      if(abs(sum(out% xa) - 1.0) > ABS_ERR ) then
-         write(*,*) "Bad xa sum found", sum(out% xa),abs(sum(out% xa) - 1.0),ABS_ERR
-         ierr = -1
-      else
-         out% xa = out% xa/sum(out% xa)
-      end if
+      call do_clean1(bbq_in% state% species, out%xa, ierr)
 
    end subroutine check_output
 
@@ -526,6 +521,38 @@ module bbq_lib
       write(fout,*) 
 
    end subroutine write_output
+
+
+   subroutine do_clean1(species, xa, ierr)
+      use utils_lib
+      integer, intent(in) :: species
+      real(dp), intent(inout) :: xa(:) ! (species)
+      real(dp),parameter :: max_sum_abs = 10d0
+      real(dp),parameter :: xsum_tol =1d-2
+      integer, intent(out) :: ierr
+      integer :: j
+      real(dp) :: xsum
+      real(dp), parameter :: tiny_x = 1d-99
+      character (len=256) :: message
+      if (max_sum_abs > 1) then ! check for crazy values
+         xsum = sum(abs(xa(1: species)))
+         if (is_bad(xsum) .or. xsum > max_sum_abs) then
+            ierr = -1
+            return
+         end if
+      end if
+      ierr = 0
+      do j = 1, species
+         if (xa(j) < tiny_x) xa(j) = tiny_x
+         if (xa(j) > 1) xa(j) = 1
+      end do         
+      xsum = sum(xa(1: species))         
+      if (abs(xsum-1) > xsum_tol) then
+         ierr = -1
+         return
+      end if
+      xa(1: species) = xa(1: species)/xsum
+   end subroutine do_clean1
 
 
 end module bbq_lib
