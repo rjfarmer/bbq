@@ -552,6 +552,10 @@ module bbq_lib
          return
       end if
       xa(1: species) = xa(1: species)/xsum
+      do j = 1, species
+         if (xa(j) < tiny_x) xa(j) = tiny_x
+      end do    
+
    end subroutine do_clean1
 
 
