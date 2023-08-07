@@ -142,7 +142,7 @@ module hydrostatic_lib
       real(dp) :: total_time
       integer :: fout, j
 
-      write(fout,'(2(1pe26.16,1X))', ROUND='COMPATIBLE',ADVANCE='no') total_time, in% time 
+      write(fout,'(4(1pe26.16,1X))', ROUND='COMPATIBLE',ADVANCE='no') total_time, in% time, out% eps_nuc, out% eps_neu 
 
       do j=1, size(out% xa)
             write(fout,'(1pe26.16,1X)', ROUND='COMPATIBLE',ADVANCE='no') out% xa(j)
