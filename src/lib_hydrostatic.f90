@@ -31,6 +31,8 @@ module hydrostatic_lib
       total_time = 0
 
       ! Add initial line
+      out% eps_nuc = 0d0
+      out% eps_neu = 0d0
       call output_hydrostatic(fout, total_time, in(1), out)
 
       do j=1,num_lines
